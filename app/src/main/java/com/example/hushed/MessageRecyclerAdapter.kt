@@ -37,10 +37,11 @@ class MessageRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
         itemView: View
     ): RecyclerView.ViewHolder(itemView) {
 
-        val msgImage = itemView.msg_image
+        val msgSender = itemView.message_sender
         val messageText = itemView.message_text
 
         fun bind(msg: Messages) {
+            msgSender.setText(msg.sender)
             messageText.setText(msg.message)
         }
     }
