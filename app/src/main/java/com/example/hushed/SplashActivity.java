@@ -1,4 +1,4 @@
-package com.example.wesley.finalproject;
+package com.example.hushed;
 
 import android.content.Intent;
 import android.os.Handler;
