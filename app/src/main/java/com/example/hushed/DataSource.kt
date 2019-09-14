@@ -1,3 +1,6 @@
+/*
+    This is where we get the data from the the server
+*/
 package com.example.hushed
 
 import com.example.hushed.models.Messages
