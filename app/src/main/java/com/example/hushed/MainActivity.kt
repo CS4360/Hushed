@@ -1,8 +1,8 @@
 package com.example.hushed
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hushed.models.Messages
@@ -35,5 +35,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun messageClicked(msg: Messages) {
         Toast.makeText(this, msg.message, Toast.LENGTH_LONG).show()
+
+        val intent = Intent(this, DisplayMessageActivity::class.java)
+        intent.putExtra(Intent.EXTRA_TEXT, msg.message)
+        startActivity(intent)
     }
 }
