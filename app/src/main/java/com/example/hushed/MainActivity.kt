@@ -3,7 +3,9 @@ package com.example.hushed
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -26,8 +28,12 @@ class MainActivity : AppCompatActivity() {
     private fun initRecyclerView(){
         recyclerViewHome.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
-            messageAdapter = MessageRecyclerAdapter()
+            messageAdapter = MessageRecyclerAdapter {message: Messages -> messageClicked(message)}
             adapter = messageAdapter
         }
+    }
+
+    private fun messageClicked(msg: Messages) {
+        Toast.makeText(this, msg.message, Toast.LENGTH_LONG).show()
     }
 }

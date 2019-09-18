@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.recycler_messages.view.*
 
-class MessageRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class MessageRecyclerAdapter(val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     private var messages: List<Messages> = ArrayList()
 
@@ -20,7 +20,7 @@ class MessageRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(holder){
             is MessageViewHolder -> {
-                holder.bind(messages.get(position))
+                holder.bind(messages.get(position), clickListener)
             }
         }
     }
@@ -33,16 +33,15 @@ class MessageRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
         messages = msg
     }
 
-    class MessageViewHolder constructor(
-        itemView: View
-    ): RecyclerView.ViewHolder(itemView) {
+    class MessageViewHolder (itemView: View): RecyclerView.ViewHolder(itemView) {
 
         val msgSender = itemView.message_sender
         val messageText = itemView.message_text
 
-        fun bind(msg: Messages) {
+        fun bind(msg: Messages, clickListener: (Messages) -> Unit) {
             msgSender.setText(msg.sender)
             messageText.setText(msg.message)
+            itemView.setOnClickListener{clickListener(msg)}
         }
     }
 
