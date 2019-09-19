@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MessageActivity : AppCompatActivity() {
 
     private lateinit var messageAdapter: MessageRecyclerAdapter
 
@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initRecyclerView(){
         recyclerViewHome.apply {
-            layoutManager = LinearLayoutManager(this@MainActivity)
+            layoutManager = LinearLayoutManager(this@MessageActivity)
             messageAdapter = MessageRecyclerAdapter {message: Messages -> messageClicked(message)}
             adapter = messageAdapter
         }
