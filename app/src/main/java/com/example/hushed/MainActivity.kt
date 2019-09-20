@@ -1,5 +1,6 @@
 package com.example.hushed
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,8 @@ class MainActivity : AppCompatActivity() {
         // CONNECT BUTTON **************************************************************************
         button_connect.setOnClickListener {
             Log.i("Button","Click: button_connect")
+            val intent = Intent(this, MessageActivity::class.java)
+            startActivity(intent)
         }
 
         // SETTINGS BUTTON **************************************************************************
