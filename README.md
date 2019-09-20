@@ -6,7 +6,7 @@ This repository contains code for a peer to peer encrypted communication app dev
 
 ## Setup for Development
 - Clone repository
-- More to be announced soon
+- Place google-service.json file into {GIT_REPO}\app directory
 
 ## Setup for Production
 - To be announced soon
