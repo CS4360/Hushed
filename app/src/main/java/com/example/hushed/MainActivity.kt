@@ -1,9 +1,15 @@
 package com.example.hushed
 
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import android.util.Log
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -24,6 +30,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_PHONE_STATE)) {
+            } else { ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_PHONE_STATE), 2) } }
+
         // CONNECT BUTTON **************************************************************************
         button_connect.setOnClickListener {
             Log.i("Button","Click: button_connect")
@@ -38,7 +48,16 @@ class MainActivity : AppCompatActivity() {
 
         // ABOUT BUTTON **************************************************************************
         button_about.setOnClickListener {
-            Log.i("Button","Click: button_about")
+            try{
+                val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                val IMEI = tm.getImei()
+                if (IMEI != null)
+                    Toast.makeText(this, "IMEI number: " + IMEI,
+                        Toast.LENGTH_LONG).show()
+
+            }catch (ex:Exception){
+                Log.i("", "There was a problem")
+            }
         }
 
         // Dummy BUTTON **************************************************************************
