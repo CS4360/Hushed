@@ -14,12 +14,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
 class MainActivity : AppCompatActivity() {
-    var dummyAddress = "Brian"
-    var dummyData = hashMapOf(
-        "Nicolas" to hashMapOf("Francisco" to "Wassup", "Wes" to "Howdy"),
-        "Wes" to hashMapOf("Francisco" to "Yoo", "Nicolas" to "What it do???"),
-        dummyAddress to hashMapOf("Francisco" to "Wasssuuup", "Nicolas" to "Helloooo")
-    )
+    var dummyAddress = ""
+    var dummyData = hashMapOf<String, Map<String, Any>>()
+
     val db = FirebaseFirestore.getInstance()
         .collection("db")
         .document("collection")
@@ -29,11 +26,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val displayIMEI = retrieveImei()
-
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_PHONE_STATE)) {
             } else { ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_PHONE_STATE), 2) } }
+
+        val displayIMEI = retrieveImei()
 
         // CONNECT BUTTON **************************************************************************
         button_connect.setOnClickListener {
@@ -50,37 +47,23 @@ class MainActivity : AppCompatActivity() {
 
         // ABOUT BUTTON **************************************************************************
         button_about.setOnClickListener {
-
-            if (displayIMEI != null) {
-                this.dummyAddress = displayIMEI
-            }
-
-            this.dummyData = hashMapOf(dummyAddress to hashMapOf("Brian" to "This is from the emulator", "Nicholas" to "...Did you get me sick?"))
+            Log.i("Button","Click: button_about")
         }
 
         // Dummy BUTTON **************************************************************************
         button_dummy.setOnClickListener {
+            if (displayIMEI != null) {
+                this.dummyAddress = displayIMEI
+            }
+
+            this.dummyData = hashMapOf(dummyAddress to hashMapOf("Brian" to "This is from the emulator", "Francisco" to "I am just testing stuff, tbh"))
+
             db.set(dummyData, SetOptions.merge())
                 .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
                 .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
 
             Log.i("Button","Click: button_dummy")
         }
-
-        // Dummy BUTTON **************************************************************************
-//        button_dummy.setOnClickListener {
-//            val dummyData = hashMapOf(
-//                "Nicolas" to hashMapOf("Francisco" to "Wassup", "Wes" to "Howdy"),
-//                "Wes" to hashMapOf("Francisco" to "Yoo", "Nicolas" to "What it do???"),
-//                dummyAddress to hashMapOf("Francisco" to "Yoo", "Nicolas" to "What it do???")
-//            )
-//
-//            db.set(dummyData, SetOptions.merge())
-//                .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-//                .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
-//
-//            Log.i("Button","Click: button_dummy")
-//        }
 
         // Retrieve BUTTON **************************************************************************
         button_retrieve.setOnClickListener {
