@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
                 this.dummyAddress = displayIMEI
             }
 
-            this.dummyData = hashMapOf(dummyAddress to hashMapOf("Brian" to "This is from the emulator", "Francisco" to "I am just testing stuff, tbh"))
+            this.dummyData = hashMapOf(dummyAddress to hashMapOf("Brian" to "This is from the emulator", "Francisco" to "I am just testing stuff... wait a second"))
 
             db.set(dummyData, SetOptions.merge())
                 .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
@@ -84,8 +84,9 @@ class MainActivity : AppCompatActivity() {
     fun retrieveImei(): String? {
         try{
             val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-            val test = tm.getImei()
-            return test
+//            val test = tm.getImei()
+            val id = tm.getDeviceId()
+            return id
         }catch (ex:Exception){
             Log.i("", "There was a problem")
         }
