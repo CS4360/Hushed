@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                 this.dummyAddress = displayIMEI
             }
 
-            this.dummyData = hashMapOf(dummyAddress to hashMapOf("Brian" to "This is from the emulator", "Nicholas" to "...Are you getting sick?"))
+            this.dummyData = hashMapOf(dummyAddress to hashMapOf("Brian" to "This is from the emulator", "Nicholas" to "...Did you get me sick?"))
         }
 
         // Dummy BUTTON **************************************************************************
