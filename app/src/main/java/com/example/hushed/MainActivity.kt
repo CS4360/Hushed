@@ -3,6 +3,7 @@ package com.example.hushed
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.telephony.TelephonyManager
@@ -84,9 +85,14 @@ class MainActivity : AppCompatActivity() {
     fun retrieveImei(): String? {
         try{
             val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-//            val test = tm.getImei()
-            val id = tm.getDeviceId()
-            return id
+            if (Build.VERSION.SDK_INT < 26) {
+                val id = tm.getDeviceId()
+                return id
+            }
+            else {
+                val imei = tm.getImei()
+                return imei
+            }
         }catch (ex:Exception){
             Log.i("", "There was a problem")
         }
