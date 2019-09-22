@@ -1,20 +1,23 @@
 package com.example.hushed
 
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
 class MainActivity : AppCompatActivity() {
-    var dummyAddress = "Brian"
-    val dummyData = hashMapOf(
-        "Nicolas" to hashMapOf("Francisco" to "Wassup", "Wes" to "Howdy"),
-        "Wes" to hashMapOf("Francisco" to "Yoo", "Nicolas" to "What it do???"),
-        dummyAddress to hashMapOf("Francisco" to "Wasssuuup", "Nicolas" to "Helloooo")
-    )
+    var dummyAddress = ""
+    var dummyData = hashMapOf<String, Map<String, Any>>()
+
     val db = FirebaseFirestore.getInstance()
         .collection("db")
         .document("collection")
@@ -23,6 +26,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_PHONE_STATE)) {
+            } else { ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_PHONE_STATE), 2) } }
+
+        val displayIMEI = retrieveImei()
 
         // CONNECT BUTTON **************************************************************************
         button_connect.setOnClickListener {
@@ -33,6 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         // SETTINGS BUTTON **************************************************************************
         button_settings.setOnClickListener {
+            println("SETTINGS BUTTON")
             Log.i("Button","Click: button_settings")
         }
 
@@ -43,20 +53,11 @@ class MainActivity : AppCompatActivity() {
 
         // Dummy BUTTON **************************************************************************
         button_dummy.setOnClickListener {
-            db.set(dummyData, SetOptions.merge())
-                .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-                .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
+            if (displayIMEI != null) {
+                this.dummyAddress = displayIMEI
+            }
 
-            Log.i("Button","Click: button_dummy")
-        }
-
-        // Dummy BUTTON **************************************************************************
-        button_dummy.setOnClickListener {
-            val dummyData = hashMapOf(
-                "Nicolas" to hashMapOf("Francisco" to "Wassup", "Wes" to "Howdy"),
-                "Wes" to hashMapOf("Francisco" to "Yoo", "Nicolas" to "What it do???"),
-                dummyAddress to hashMapOf("Francisco" to "Yoo", "Nicolas" to "What it do???")
-            )
+            this.dummyData = hashMapOf(dummyAddress to hashMapOf("Brian" to "This is from the emulator", "Francisco" to "I am just testing stuff... wait a second"))
 
             db.set(dummyData, SetOptions.merge())
                 .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
@@ -79,5 +80,22 @@ class MainActivity : AppCompatActivity() {
 
             Log.i("Button","Click: button_retrieve")
         }
+    }
+
+    fun retrieveImei(): String? {
+        try{
+            val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            if (Build.VERSION.SDK_INT < 26) {
+                val id = tm.getDeviceId()
+                return id
+            }
+            else {
+                val imei = tm.getImei()
+                return imei
+            }
+        }catch (ex:Exception){
+            Log.i("", "There was a problem")
+        }
+        return "ERROR" // not sure what this should return
     }
 }
