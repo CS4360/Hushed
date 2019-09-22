@@ -10,18 +10,42 @@ import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
 class MainActivity : AppCompatActivity() {
-    var dummyAddress = ""
-    var dummyData = hashMapOf<String, Map<String, Any>>()
-
-    val db = FirebaseFirestore.getInstance()
+    private var dummyAddress = ""
+    private var dummyData = mapOf<String, Any>()
+    private val db = FirebaseFirestore.getInstance()
         .collection("db")
-        .document("collection")
-    val map = mutableMapOf<String, Any?>()
+    private val dummyMessages = listOf( Messages(
+        sender = "Frient Unit 1",
+        message = "Hey there!"
+    ), Messages(
+        sender = "Parental Unit 1",
+        message = "Please call me back"
+    ), Messages(
+        sender = "Friend Unit 2",
+        message = "Just wanted to let you know..."
+    ), Messages(
+        sender = "Sibling Unit 1",
+        message = "Please don't tell Parental Unit 1 about this"
+    ), Messages(
+        sender = "Friend Unit 3",
+        message = "Bruh!"
+    ), Messages(
+        sender = "Group Member 1",
+        message = "Need the report to be finished soon"
+    ), Messages(
+        sender = "Parental Unit 2",
+        message = "See you this weekend"
+    ), Messages(
+        sender = "Gandalf the Grey",
+        message = "You Shall Not PASS!"
+    ))
+    private val messages = ArrayList<Messages>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,13 +55,26 @@ class MainActivity : AppCompatActivity() {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_PHONE_STATE)) {
             } else { ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_PHONE_STATE), 2) } }
 
-        val displayIMEI = retrieveImei()
+        dummyAddress = retrieveImei().toString()
+        dummyData = dummyMessages.map {it.sender to it.message}.toMap()
 
         // CONNECT BUTTON **************************************************************************
         button_connect.setOnClickListener {
             Log.i("Button","Click: button_connect")
-            val intent = Intent(this, MessageActivity::class.java)
-            startActivity(intent)
+
+            db.document(dummyAddress).get()
+                .addOnSuccessListener { doc ->
+                    for((key, value) in doc.data.orEmpty()) {
+                        messages.add(Messages(
+                            sender = key,
+                            message = value.toString()
+                        ))
+                    }
+                    DataSource.setDataSet(messages)
+                    val intent = Intent(this, MessageActivity::class.java)
+                    startActivity(intent)
+                }
+                .addOnFailureListener { e -> Log.w("Firebase", "Error retrieving document", e) }
         }
 
         // SETTINGS BUTTON **************************************************************************
@@ -51,38 +88,17 @@ class MainActivity : AppCompatActivity() {
             Log.i("Button","Click: button_about")
         }
 
-        // Dummy BUTTON **************************************************************************
+        // Dummy Send BUTTON **************************************************************************
         button_dummy.setOnClickListener {
-            if (displayIMEI != null) {
-                this.dummyAddress = displayIMEI
-            }
-
-            this.dummyData = hashMapOf(dummyAddress to hashMapOf("Brian" to "This is from the emulator", "Francisco" to "I am just testing stuff... wait a second"))
-
-            db.set(dummyData, SetOptions.merge())
+            db.document(dummyAddress).set(dummyData, SetOptions.merge())
                 .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
                 .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
 
             Log.i("Button","Click: button_dummy")
         }
-
-        // Retrieve BUTTON **************************************************************************
-        button_retrieve.setOnClickListener {
-            db.get()
-                .addOnSuccessListener { doc ->
-                    map.put(dummyAddress, doc[dummyAddress])
-
-                    if(map[dummyAddress] != null) {
-                        textView4.setText(map[dummyAddress].toString())
-                    }
-                }
-                .addOnFailureListener { e -> Log.w("Firebase", "Error retrieving document", e) }
-
-            Log.i("Button","Click: button_retrieve")
-        }
     }
 
-    fun retrieveImei(): String? {
+    private fun retrieveImei(): String? {
         try{
             val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             if (Build.VERSION.SDK_INT < 26) {
