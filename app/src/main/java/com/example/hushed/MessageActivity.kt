@@ -3,7 +3,6 @@ package com.example.hushed
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.activity_home_messages.*
@@ -21,7 +20,7 @@ class MessageActivity : AppCompatActivity() {
     }
 
     private fun addDataSet() {
-        val data = DataSource.createDataSet()
+        val data = DataSource.getDataSet()
         messageAdapter.submitList(data)
     }
 
@@ -34,8 +33,6 @@ class MessageActivity : AppCompatActivity() {
     }
 
     private fun messageClicked(msg: Messages) {
-        Toast.makeText(this, msg.message, Toast.LENGTH_LONG).show()
-
         val intent = Intent(this, DisplayMessageActivity::class.java)
         intent.putExtra(Intent.EXTRA_TEXT, msg.message)
         startActivity(intent)
