@@ -1,22 +1,35 @@
 package com.example.hushed
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_display_message.*
-import kotlinx.android.synthetic.main.activity_message_sent.*
+import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.activity_message_chat.*
 
 class DisplayMessageActivity : AppCompatActivity() {
 
+    private lateinit var displayAdapter: DisplayRecyclerAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_message_sent)
+        setContentView(R.layout.activity_message_chat)
 
-        val intentThatStartedThisActivity = intent
+        initRecyclerView()
+        addDataSet()
+    }
 
-        if(intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
-            var msg = intentThatStartedThisActivity.getStringExtra(Intent.EXTRA_TEXT)
-            txtMyMessage.text = msg
+    private fun addDataSet() {
+        val actionBar = supportActionBar
+        actionBar!!.title = intent.getStringExtra(EXTRA_TEXT)
+//        val data = DataSource.getDataSet()
+        val intentMsg = intent.getStringExtra(EXTRA_MESSAGE)
+        displayAdapter.submitList(intentMsg)
+    }
+
+    private fun initRecyclerView() {
+        messageList.apply {
+            layoutManager = LinearLayoutManager(this@DisplayMessageActivity)
+            displayAdapter = DisplayRecyclerAdapter()
+            adapter = displayAdapter
         }
     }
 }
