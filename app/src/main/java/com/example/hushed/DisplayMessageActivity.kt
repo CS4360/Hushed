@@ -20,7 +20,7 @@ class DisplayMessageActivity : AppCompatActivity() {
 
         if(intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
             var msg = intentThatStartedThisActivity.getStringExtra(Intent.EXTRA_TEXT)
-            texView.text = msg
+            texView.text = ""
         }
 
         send_button.setOnClickListener {
@@ -31,6 +31,7 @@ class DisplayMessageActivity : AppCompatActivity() {
             } else {
                 messageText = editText.text.toString()
                 Log.i("tag", "$messageText")
+                texView.text = messageText
             }
 
             editText.text.clear()
