@@ -3,10 +3,8 @@ package com.example.hushed
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -14,6 +12,8 @@ import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     private var dummyAddress = ""
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_PHONE_STATE)) {
             } else { ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_PHONE_STATE), 2) } }
 
-        dummyAddress = retrieveImei().toString()
+        dummyAddress = retrieveAddress().toString()
         dummyData = dummyMessages.map {it.sender to it.message}.toMap()
 
         // CONNECT BUTTON **************************************************************************
@@ -98,20 +98,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun retrieveImei(): String? {
-        try{
-            val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-            if (Build.VERSION.SDK_INT < 26) {
-                val id = tm.getDeviceId()
-                return id
-            }
-            else {
-                val imei = tm.getImei()
-                return imei
-            }
-        }catch (ex:Exception){
-            Log.i("", "There was a problem")
+    private fun retrieveAddress(): String? {
+        val prefInfo = getPreferences(Context.MODE_PRIVATE)
+
+        if(prefInfo.getString("GUID", null) != null) {
+            return prefInfo.getString("GUID", null)
         }
-        return "ERROR" // not sure what this should return
+        else {
+            var myID = UUID.randomUUID().toString()
+            prefInfo?.edit()?.putString("GUID", myID)?.apply()
+            return myID
+        }
     }
 }
