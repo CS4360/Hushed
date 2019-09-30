@@ -101,12 +101,12 @@ class MainActivity : AppCompatActivity() {
     private fun retrieveAddress(): String? {
         val prefInfo = getPreferences(Context.MODE_PRIVATE)
 
-        if(prefInfo.getString("GUID", null) != null) {
-            return prefInfo.getString("GUID", null)
+        if(prefInfo.getString("UUID", null) != null) {
+            return prefInfo.getString("UUID", null)
         }
         else {
             var myID = UUID.randomUUID().toString()
-            prefInfo?.edit()?.putString("GUID", myID)?.apply()
+            prefInfo?.edit()?.putString("UUID", myID)?.apply()
             return myID
         }
     }
