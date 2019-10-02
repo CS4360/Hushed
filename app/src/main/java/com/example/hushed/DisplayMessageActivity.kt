@@ -1,41 +1,57 @@
 package com.example.hushed
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_display_message.*
-import kotlinx.android.synthetic.main.activity_splash.*
+import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.activity_message_chat.*
 
 class DisplayMessageActivity : AppCompatActivity() {
 
-    var messageText = ""
+    var messageText: String = ""
+
+    private lateinit var displayAdapter: DisplayRecyclerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_display_message)
+        setContentView(R.layout.activity_message_chat)
 
-        val intentThatStartedThisActivity = intent
+        val actionBar = supportActionBar
+        val senderName = intent.getStringExtra(EXTRA_TEXT)
+        actionBar!!.title = senderName
 
-        if(intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
-            var msg = intentThatStartedThisActivity.getStringExtra(Intent.EXTRA_TEXT)
-            texView.text = ""
-        }
+        initRecyclerView()
+        addDataSet()
 
-        send_button.setOnClickListener {
+        btnSend.setOnClickListener{
             Log.i("tag", "Click: send_button Button")
-            if(editText.text.isNullOrBlank()) {
+            if(txtMessage.text.isNullOrBlank()) {
                 Toast.makeText(this@DisplayMessageActivity, "Message cannot be blank", Toast.LENGTH_LONG).show()
                 Log.i("tag", "Blank message entered")
             } else {
-                messageText = editText.text.toString()
+                messageText = txtMessage.text.toString()
                 Log.i("tag", "$messageText")
-                texView.text = messageText
             }
+            txtMessage.text.clear()
+        }
+    }
 
-            editText.text.clear()
+    private fun addDataSet() {
+//        val data = DataSource.getDataSet()
+        val actionBar = supportActionBar
+        val senderName: String = intent.getStringExtra(EXTRA_TEXT)
+        actionBar!!.title = senderName
 
+        val intentMsg: String = intent.getStringExtra(EXTRA_MESSAGE)
+        displayAdapter.submitList(intentMsg, senderName)
+    }
+
+    private fun initRecyclerView() {
+        messageList.apply {
+            layoutManager = LinearLayoutManager(this@DisplayMessageActivity)
+            displayAdapter = DisplayRecyclerAdapter()
+            adapter = displayAdapter
         }
     }
 }
