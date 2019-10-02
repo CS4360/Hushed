@@ -33,8 +33,17 @@ class DisplayMessageActivity : AppCompatActivity() {
                 messageText = txtMessage.text.toString()
                 Log.i("tag", "$messageText")
             }
+            sentDataSet(messageText)
             txtMessage.text.clear()
         }
+    }
+
+    private fun sentDataSet(msg: String) {
+        val actionBar = supportActionBar
+        val senderName: String = intent.getStringExtra(EXTRA_TEXT)
+        actionBar!!.title = senderName
+
+        displayAdapter.sentList(msg, senderName, false)
     }
 
     private fun addDataSet() {
@@ -44,7 +53,7 @@ class DisplayMessageActivity : AppCompatActivity() {
         actionBar!!.title = senderName
 
         val intentMsg: String = intent.getStringExtra(EXTRA_MESSAGE)
-        displayAdapter.submitList(intentMsg, senderName)
+        displayAdapter.submitList(intentMsg, senderName, true)
     }
 
     private fun initRecyclerView() {
