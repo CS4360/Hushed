@@ -7,4 +7,7 @@
     <string name="button_about">About</string>
     <string name="button_dummysend">Dummy Send</string>
     <string name="button_dummyretrieve">Dummy Retrieve</string>
+    <string name="button_send">Send</string>
+    <string name="message_prompt">Enter message</string>
+    <string name="messageText">%1$s</string>
 </resources>
