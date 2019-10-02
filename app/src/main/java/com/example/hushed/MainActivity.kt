@@ -2,12 +2,9 @@ package com.example.hushed
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,8 +13,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
-    private var dummyAddress = ""
-    private var dummyData = mapOf<String, Any>()
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
     private val dummyMessages = listOf( Messages(
@@ -45,24 +40,22 @@ class MainActivity : AppCompatActivity() {
         sender = "Gandalf the Grey",
         message = "You Shall Not PASS!"
     ))
+
+    private var dummyData = dummyMessages.map {it.sender to it.message}.toMap()
+
     private val messages = ArrayList<Messages>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_PHONE_STATE)) {
-            } else { ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_PHONE_STATE), 2) } }
-
-        dummyAddress = retrieveAddress().toString()
-        dummyData = dummyMessages.map {it.sender to it.message}.toMap()
+        DataSource.setDeviceID(checkAddress().toString())
 
         // CONNECT BUTTON **************************************************************************
         button_connect.setOnClickListener {
             Log.i("Button","Click: button_connect")
 
-            db.document(dummyAddress).get()
+            db.document(DataSource.getDeviceID()).get()
                 .addOnSuccessListener { doc ->
                     for((key, value) in doc.data.orEmpty()) {
                         messages.add(Messages(
@@ -90,7 +83,7 @@ class MainActivity : AppCompatActivity() {
 
         // Dummy Send BUTTON **************************************************************************
         button_dummy.setOnClickListener {
-            db.document(dummyAddress).set(dummyData, SetOptions.merge())
+            db.document(DataSource.getDeviceID()).set(dummyData, SetOptions.merge())
                 .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
                 .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
 
@@ -98,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun retrieveAddress(): String? {
+    private fun checkAddress(): String? {
         val prefInfo = getPreferences(Context.MODE_PRIVATE)
 
         if(prefInfo.getString("UUID", null) != null) {

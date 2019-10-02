@@ -6,12 +6,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_message_chat.*
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class DisplayMessageActivity : AppCompatActivity() {
 
-    var messageText: String = ""
-
     private lateinit var displayAdapter: DisplayRecyclerAdapter
+
+    private val db = FirebaseFirestore.getInstance()
+        .collection("db")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,22 +32,28 @@ class DisplayMessageActivity : AppCompatActivity() {
             if(txtMessage.text.isNullOrBlank()) {
                 Toast.makeText(this@DisplayMessageActivity, "Message cannot be blank", Toast.LENGTH_LONG).show()
                 Log.i("tag", "Blank message entered")
-            } else {
-                messageText = txtMessage.text.toString()
-                Log.i("tag", "$messageText")
             }
+            else {
+                val peer: String? = intent.getStringExtra(EXTRA_TEXT)
+
+                var messageText: HashMap<Any, Any> = hashMapOf(peer.toString() to txtMessage.text.toString())
+
+                db.document(DataSource.getDeviceID()).set(messageText, SetOptions.merge())
+                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
+                    .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
+            }
+
             txtMessage.text.clear()
         }
     }
 
     private fun addDataSet() {
-//        val data = DataSource.getDataSet()
         val actionBar = supportActionBar
-        val senderName: String = intent.getStringExtra(EXTRA_TEXT)
+        val senderName: String? = intent.getStringExtra(EXTRA_TEXT)
         actionBar!!.title = senderName
 
-        val intentMsg: String = intent.getStringExtra(EXTRA_MESSAGE)
-        displayAdapter.submitList(intentMsg, senderName)
+        val intentMsg: String? = intent.getStringExtra(EXTRA_MESSAGE)
+        displayAdapter.submitList(intentMsg.toString(), senderName.toString())
     }
 
     private fun initRecyclerView() {
