@@ -3,6 +3,7 @@ This repository contains code for a peer to peer encrypted communication app dev
 
 ## Tools Used
 - Android Studio
+- Firebase
 
 ## Setup for Development
 - Clone repository
