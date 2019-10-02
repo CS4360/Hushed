@@ -18,7 +18,7 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (receivedMessage) {
-            return DisplayReceivedViewHolder(
+            return ReceivedViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.activity_messaged_received, parent, false)   // Received Message Bubble
             )
         }
@@ -31,7 +31,7 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is DisplayReceivedViewHolder ->
+            is ReceivedViewHolder ->
                 holder.bind(messages[position])
         }
         when (holder) {
@@ -66,7 +66,7 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyDataSetChanged()
     }
 
-    class DisplayReceivedViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ReceivedViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(msg: Messages) {
             // just display the other message (received)
             Log.i("tag", "Received message")
