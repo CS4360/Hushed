@@ -38,6 +38,8 @@ class DisplayMessageActivity : AppCompatActivity() {
 
                 var messageText: HashMap<Any, Any> = hashMapOf(peer.toString() to txtMessage.text.toString())
 
+                sentDataSet(txtMessage.text.toString())
+
                 db.document(DataSource.getDeviceID()).set(messageText, SetOptions.merge())
                     .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
                     .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
@@ -47,13 +49,21 @@ class DisplayMessageActivity : AppCompatActivity() {
         }
     }
 
+    private fun sentDataSet(msg: String) {
+        val actionBar = supportActionBar
+        val senderName: String = intent.getStringExtra(EXTRA_TEXT)
+        actionBar!!.title = senderName
+
+        displayAdapter.sentList(msg, senderName, false)
+    }
+
     private fun addDataSet() {
         val actionBar = supportActionBar
         val senderName: String? = intent.getStringExtra(EXTRA_TEXT)
         actionBar!!.title = senderName
 
         val intentMsg: String? = intent.getStringExtra(EXTRA_MESSAGE)
-        displayAdapter.submitList(intentMsg.toString(), senderName.toString())
+        displayAdapter.submitList(intentMsg.toString(), senderName.toString(), true)
     }
 
     private fun initRecyclerView() {
