@@ -9,6 +9,15 @@ class DataSource {
 
     companion object {
         private var list = ArrayList<Messages>()
+        private var deviceID = ""
+
+        fun getDeviceID(): String {
+            return deviceID
+        }
+
+        fun setDeviceID(address: String) {
+            deviceID = address
+        }
 
         fun getDataSet(): ArrayList<Messages> {
             return list
