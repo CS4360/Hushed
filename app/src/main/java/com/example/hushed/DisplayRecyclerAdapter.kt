@@ -14,7 +14,6 @@ private var receivedMessage: Boolean = false
 class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var messages: MutableList<Messages> = ArrayList()
-//    private var message: MutableList<String> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (receivedMessage) {
@@ -33,17 +32,17 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         when (holder) {
             is ReceivedViewHolder ->
                 holder.bind(messages[position])
-        }
-        when (holder) {
             is MyMessageViewHolder ->
                 holder.bind(messages[position])
         }
-
-
     }
 
     override fun getItemCount(): Int {
         return messages.size
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return position
     }
 
     fun submitList(msg: String, sender: String, received: Boolean) {
