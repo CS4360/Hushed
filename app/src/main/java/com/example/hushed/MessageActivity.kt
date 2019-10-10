@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.activity_home_messages.*
 
-const val EXTRA_MESSAGE = "com.example.hushed.MESSAGE"
-const val EXTRA_TEXT = "com.example.hushed.SENDER"
+const val MESSAGE = "com.example.hushed.MESSAGE"
+const val SENDER = "com.example.hushed.SENDER"
 
 class MessageActivity : AppCompatActivity() {
 
@@ -37,8 +37,8 @@ class MessageActivity : AppCompatActivity() {
 
     private fun messageClicked(msg: Messages) {
         val intent = Intent(this, DisplayMessageActivity::class.java)
-        intent.putExtra(EXTRA_MESSAGE, msg.message)
-        intent.putExtra(EXTRA_TEXT, msg.sender)
+        intent.putExtra(MESSAGE, msg.message)
+        intent.putExtra(SENDER, msg.sender)
         startActivity(intent)
     }
 }

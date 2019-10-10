@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         message = "You Shall Not PASS!"
     ))
 
-    private var dummyData = dummyMessages.map {it.sender to it.message}.toMap()
+    private var dummyData = dummyMessages.map {it.sender to (arrayListOf(it.message))}.toMap()
 
     private val messages = ArrayList<Messages>()
 
@@ -58,11 +58,16 @@ class MainActivity : AppCompatActivity() {
             db.document(DataSource.getDeviceID()).get()
                 .addOnSuccessListener { doc ->
                     for((key, value) in doc.data.orEmpty()) {
+                        var allMessages = doc.get(key) as ArrayList<*>
+
                         messages.add(Messages(
                             sender = key,
-                            message = value.toString()
+                            message = allMessages[0].toString()
                         ))
+
+                        Log.w("Firebase", value.toString())
                     }
+
                     DataSource.setDataSet(messages)
                     val intent = Intent(this, MessageActivity::class.java)
                     startActivity(intent)
@@ -83,9 +88,13 @@ class MainActivity : AppCompatActivity() {
 
         // Dummy Send BUTTON **************************************************************************
         button_dummy.setOnClickListener {
-            db.document(DataSource.getDeviceID()).set(dummyData, SetOptions.merge())
-                .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-                .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
+
+            for((key, value) in dummyData) {
+                db.document(DataSource.getDeviceID()).set(hashMapOf(key to value),
+                    SetOptions.merge())
+                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
+                    .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
+            }
 
             Log.i("Button","Click: button_dummy")
         }
