@@ -16,13 +16,12 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var messages: MutableList<Messages> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if (receivedMessage) {
-            return ReceivedViewHolder(
+        return if (receivedMessage) {
+            ReceivedViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.activity_messaged_received, parent, false)   // Received Message Bubble
             )
-        }
-        else {
-            return MyMessageViewHolder(
+        } else {
+            MyMessageViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.activity_message_sent, parent, false) // Sent Message Bubble
             )
         }

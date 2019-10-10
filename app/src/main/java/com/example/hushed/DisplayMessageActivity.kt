@@ -68,7 +68,9 @@ class DisplayMessageActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
         messageList.apply {
-            layoutManager = LinearLayoutManager(this@DisplayMessageActivity)
+            layoutManager = LinearLayoutManager(this@DisplayMessageActivity).apply {
+                stackFromEnd = true
+            }
             displayAdapter = DisplayRecyclerAdapter()
             adapter = displayAdapter
         }
