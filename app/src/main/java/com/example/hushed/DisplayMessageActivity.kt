@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.firestore.FieldValue
 import kotlinx.android.synthetic.main.activity_message_chat.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -21,7 +22,7 @@ class DisplayMessageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_message_chat)
 
         val actionBar = supportActionBar
-        val senderName = intent.getStringExtra(EXTRA_TEXT)
+        val senderName = intent.getStringExtra(SENDER)
         actionBar!!.title = senderName
 
         initRecyclerView()
@@ -34,15 +35,19 @@ class DisplayMessageActivity : AppCompatActivity() {
                 Log.i("tag", "Blank message entered")
             }
             else {
-                val peer: String? = intent.getStringExtra(EXTRA_TEXT)
-
-                var messageText: HashMap<Any, Any> = hashMapOf(peer.toString() to txtMessage.text.toString())
-
                 sentDataSet(txtMessage.text.toString())
 
-                db.document(DataSource.getDeviceID()).set(messageText, SetOptions.merge())
-                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-                    .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
+                db.document(DataSource.getDeviceID()).update(intent.getStringExtra(SENDER),
+                    FieldValue.arrayUnion(txtMessage.text.toString()))
+                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully updated!") }
+                    .addOnFailureListener {
+                        db.document(DataSource.getDeviceID())
+                            .set(hashMapOf(intent.getStringExtra(SENDER) to FieldValue.arrayUnion(txtMessage.text.toString())),
+                            SetOptions.merge())
+                            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
+                            .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
+                            }
+                    }
             }
 
             txtMessage.text.clear()
@@ -51,7 +56,7 @@ class DisplayMessageActivity : AppCompatActivity() {
 
     private fun sentDataSet(msg: String) {
         val actionBar = supportActionBar
-        val senderName: String = intent.getStringExtra(EXTRA_TEXT)
+        val senderName: String = intent.getStringExtra(SENDER)
         actionBar!!.title = senderName
 
         displayAdapter.sentList(msg, senderName, false)
@@ -59,10 +64,10 @@ class DisplayMessageActivity : AppCompatActivity() {
 
     private fun addDataSet() {
         val actionBar = supportActionBar
-        val senderName: String? = intent.getStringExtra(EXTRA_TEXT)
+        val senderName: String? = intent.getStringExtra(SENDER)
         actionBar!!.title = senderName
 
-        val intentMsg: String? = intent.getStringExtra(EXTRA_MESSAGE)
+        val intentMsg: String? = intent.getStringExtra(MESSAGE)
         displayAdapter.submitList(intentMsg.toString(), senderName.toString(), true)
     }
 
