@@ -60,6 +60,7 @@ class DisplayMessageActivity : AppCompatActivity() {
         actionBar!!.title = senderName
 
         displayAdapter.sentList(msg, senderName, false)
+        messageList.scrollToPosition(displayAdapter.itemCount - 1)
     }
 
     private fun addDataSet() {
@@ -69,6 +70,7 @@ class DisplayMessageActivity : AppCompatActivity() {
 
         val intentMsg: String? = intent.getStringExtra(MESSAGE)
         displayAdapter.submitList(intentMsg.toString(), senderName.toString(), true)
+        messageList.scrollToPosition(displayAdapter.itemCount - 1)
     }
 
     private fun initRecyclerView() {
