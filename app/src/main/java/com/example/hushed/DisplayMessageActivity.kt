@@ -37,6 +37,10 @@ class DisplayMessageActivity : AppCompatActivity() {
                 Toast.makeText(this@DisplayMessageActivity, "Message cannot be blank", Toast.LENGTH_LONG).show()
                 Log.i("tag", "Blank message entered")
             }
+            else if(senderName.isNullOrBlank()) {
+                Toast.makeText(this, "Sender cannot be blank", Toast.LENGTH_LONG).show()
+                Log.i("tag", "Blank Sender")
+            }
             else {
                 sentDataSet(txtMessage.text.toString())
 
