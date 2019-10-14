@@ -13,4 +13,17 @@
         android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <Button
+        android:id="@+id/new_message"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="33dp"
+        android:layout_marginBottom="35dp"
+        android:background="@drawable/round_button"
+        android:text="+"
+        android:textColor="#ffffff"
+        android:textSize="36sp" />
 </RelativeLayout>
