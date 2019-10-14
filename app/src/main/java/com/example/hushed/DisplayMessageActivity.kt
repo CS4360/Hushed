@@ -41,11 +41,11 @@ class DisplayMessageActivity : AppCompatActivity() {
                 sentDataSet(txtMessage.text.toString())
 
                 db.document(DataSource.getDeviceID()).update(intent.getStringExtra(SENDER),
-                    FieldValue.arrayUnion(txtMessage.text.toString()))
+                    FieldValue.arrayUnion(hashMapOf("sent" to txtMessage.text.toString())))
                     .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully updated!") }
                     .addOnFailureListener {
                         db.document(DataSource.getDeviceID())
-                            .set(hashMapOf(intent.getStringExtra(SENDER) to FieldValue.arrayUnion(txtMessage.text.toString())),
+                            .set(hashMapOf(intent.getStringExtra(SENDER) to FieldValue.arrayUnion(hashMapOf("sent" to txtMessage.text.toString()))),
                             SetOptions.merge())
                             .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
                             .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
@@ -63,6 +63,7 @@ class DisplayMessageActivity : AppCompatActivity() {
         actionBar!!.title = senderName
 
         displayAdapter.sentList(msg, senderName, false)
+        messageList.scrollToPosition(displayAdapter.itemCount - 1)
     }
 
     private fun addDataSet() {
@@ -72,6 +73,7 @@ class DisplayMessageActivity : AppCompatActivity() {
 
         val intentMsg: String? = intent.getStringExtra(MESSAGE)
         displayAdapter.submitList(intentMsg.toString(), senderName.toString(), true)
+        messageList.scrollToPosition(displayAdapter.itemCount - 1)
     }
 
     private fun initRecyclerView() {
