@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         message = "You Shall Not PASS!"
     ))
 
-    private var dummyData = dummyMessages.map {it.sender to (arrayListOf(it.message))}.toMap()
+    private var dummyData = dummyMessages.map {it.sender to (arrayListOf(hashMapOf("received" to it.message)))}.toMap()
 
     private val messages = ArrayList<Messages>()
 
@@ -58,11 +59,11 @@ class MainActivity : AppCompatActivity() {
             db.document(DataSource.getDeviceID()).get()
                 .addOnSuccessListener { doc ->
                     for((key, value) in doc.data.orEmpty()) {
-                        var allMessages = doc.get(key) as ArrayList<*>
+                        var allMessages = doc.get(key) as ArrayList<HashMap<*, *>>
 
                         messages.add(Messages(
                             sender = key,
-                            message = allMessages[0].toString()
+                            message = allMessages[0]["received"].toString()
                         ))
 
                         Log.w("Firebase", value.toString())
