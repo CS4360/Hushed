@@ -26,7 +26,10 @@ class DisplayMessageActivity : AppCompatActivity() {
         actionBar!!.title = senderName
 
         initRecyclerView()
-        addDataSet()
+        val intentMsg: String? = intent.getStringExtra(MESSAGE)
+        if(intentMsg != null) {
+            addDataSet()
+        }
 
         btnSend.setOnClickListener{
             Log.i("tag", "Click: send_button Button")
