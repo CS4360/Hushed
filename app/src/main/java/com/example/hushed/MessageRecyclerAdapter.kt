@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.recycler_messages.view.*
 
+// Suggestion from jon: Rename this type "ConversationSelectRecyclerAdapter"
+// Naming things is hard, but that better describes what this adapter is for
 class MessageRecyclerAdapter(val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     private var messages: List<Messages> = ArrayList()
@@ -35,13 +37,8 @@ class MessageRecyclerAdapter(val clickListener: (Messages) -> Unit) : RecyclerVi
 
     class MessageViewHolder (itemView: View): RecyclerView.ViewHolder(itemView) {
 
-//        val msgSender = itemView.message_sender
-//        val messageText = itemView.message_text
-
         fun bind(msg: Messages, clickListener: (Messages) -> Unit) {
-//            msgSender.setText(msg.sender)
             itemView.message_sender.text = msg.sender
-//            messageText.setText(msg.message)
             itemView.message_text.text = msg.message
             itemView.setOnClickListener{clickListener(msg)}
         }

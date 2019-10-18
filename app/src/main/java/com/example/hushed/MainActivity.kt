@@ -58,18 +58,54 @@ class MainActivity : AppCompatActivity() {
 
             db.document(DataSource.getDeviceID()).get()
                 .addOnSuccessListener { doc ->
+                    // Get current list of conversations
+                    // initially, this is empty.
+                    var conversationList = DataSource.getConversationList()
+                    var conversationMap = DataSource.getConversations()
+                    var ownId = DataSource.getDeviceID()
+
                     for((key, value) in doc.data.orEmpty()) {
                         var allMessages = doc.get(key) as ArrayList<HashMap<*, *>>
+                        var convo = ArrayList<Messages>()
+                        var partnerId = key
 
-                        messages.add(Messages(
-                            sender = key,
-                            message = allMessages[0]["received"].toString()
-                        ))
 
-                        Log.w("Firebase", value.toString())
+                        Log.i("messages", "Got " + allMessages.size + " messages for convo with " + key)
+                        // Load all messages in conversation into memory
+                        for (message in allMessages) {
+                            var str = "[NO MESSAGE]"
+                            var sender = "[NO SENDER]"
+
+                            if (message.containsKey("received") && message["received"] is String) {
+                                str = message["received"] as String
+                                sender = partnerId
+                            }
+                            if (message.containsKey("sent") && message["sent"] is String) {
+                                str = message["sent"] as String
+                                sender = ownId
+                            }
+
+                            var msg = Messages(
+                                sender = sender,
+                                message = str
+                            )
+                            convo.add(msg)
+                        }
+
+                        // Add modified version of last message from conversation to list
+                        // where we set the 'sender' to be the partner,
+                        // regardless of who actually sent that message
+                        // so when it is displayed in the list,
+                        // it shows the user who the conversation is with
+                        // todo: translate ID to name of partner, and display that instead
+                        var lastMsg = convo[convo.size-1]
+                        conversationList.add(Messages(lastMsg.message, partnerId))
+
+                        // Store entire conversation into dataset
+                        conversationMap[partnerId] = convo
+
                     }
 
-                    DataSource.setDataSet(messages)
                     val intent = Intent(this, MessageActivity::class.java)
                     startActivity(intent)
                 }
