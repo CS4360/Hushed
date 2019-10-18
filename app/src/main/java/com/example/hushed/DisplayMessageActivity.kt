@@ -19,6 +19,13 @@ class DisplayMessageActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
 
+    // note from jon: logic to run when we receive an update from the database
+    private var conversationUpdatedCallback = Runnable {
+        displayAdapter.notifyDataSetChanged()
+        // scroll adapter to bottom
+        messageList.scrollToPosition(displayAdapter.itemCount - 1)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message_chat)
@@ -27,6 +34,8 @@ class DisplayMessageActivity : AppCompatActivity() {
         // note from jon:
         // Get SENDER extra, descibing id of who the conversation is with
         partnerId = intent.getStringExtra(SENDER) ?: ""
+        // Set the currently viewed conversation in the shared DataSource
+        DataSource.setViewingConversation(partnerId)
 
         // note from jon:
         // Set the name of the partner into the title bar
@@ -54,6 +63,18 @@ class DisplayMessageActivity : AppCompatActivity() {
         }
     }
 
+    // note from jon: this lifecycle method gets called just before an activity begins running
+    override fun onResume() {
+        super.onResume()
+        DataSource.addOnConversationUpdated(conversationUpdatedCallback)
+    }
+
+    // note from jon: this lifecycle method gets called just after an activity begins running
+    override fun onPause() {
+        super.onPause()
+        DataSource.removeOnConversationUpdated(conversationUpdatedCallback)
+    }
+
     private fun sendMessage(msg: String) {
         // add a message to the local system
         val senderName: String = DataSource.getDeviceID()
@@ -63,7 +84,7 @@ class DisplayMessageActivity : AppCompatActivity() {
         // scroll adapter to bottom
         messageList.scrollToPosition(displayAdapter.itemCount - 1)
 
-        // send message to database
+        // send message to database.
         db.document(DataSource.getDeviceID()).update(partnerId,
             FieldValue.arrayUnion(hashMapOf("sent" to txtMessage.text.toString())))
             .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully updated!") }
