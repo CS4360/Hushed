@@ -28,6 +28,13 @@
                 android:value=".MainActivity" />
         </activity>
 
+        <activity android:name=".ContactsActivity"
+            android:parentActivityName=".MessageActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MessageActivity"/>
+        </activity>
+
         <activity
             android:name=".SplashActivity"
             android:screenOrientation="portrait"
