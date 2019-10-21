@@ -26,7 +26,6 @@ class MessageActivity : AppCompatActivity() {
 
         new_message.setOnClickListener {
             Log.i("tag", "Click: new_message Button")
-
             val intent = Intent(this, DisplayMessageActivity::class.java)
             startActivity(intent)
         }
