@@ -14,22 +14,35 @@ class DisplayMessageActivity : AppCompatActivity() {
 
     private lateinit var displayAdapter: DisplayRecyclerAdapter
 
+    private var partnerId: String = ""
+
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
+
+    // note from jon: logic to run when we receive an update from the database
+    private var conversationUpdatedCallback = Runnable {
+        displayAdapter.notifyDataSetChanged()
+        // scroll adapter to bottom
+        messageList.scrollToPosition(displayAdapter.itemCount - 1)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message_chat)
-
-        val actionBar = supportActionBar
-        val senderName = intent.getStringExtra(SENDER)
-        actionBar!!.title = senderName
-
         initRecyclerView()
-        val intentMsg: String? = intent.getStringExtra(MESSAGE)
-        if(intentMsg != null) {
-            addDataSet()
-        }
+
+        // note from jon:
+        // Get SENDER extra, descibing id of who the conversation is with
+        partnerId = intent.getStringExtra(SENDER) ?: ""
+        // Set the currently viewed conversation in the shared DataSource
+        DataSource.setViewingConversation(partnerId)
+
+        // note from jon:
+        // Set the name of the partner into the title bar
+        // todo: map the id of the partner to their actual name
+        val actionBar = supportActionBar
+        actionBar!!.title = if (partnerId.isBlank()) "[NO PARTNER]" else partnerId
+        initDataSet()
 
         btnSend.setOnClickListener{
             Log.i("tag", "Click: send_button Button")
@@ -37,46 +50,64 @@ class DisplayMessageActivity : AppCompatActivity() {
                 Toast.makeText(this@DisplayMessageActivity, "Message cannot be blank", Toast.LENGTH_LONG).show()
                 Log.i("tag", "Blank message entered")
             }
-            else if(senderName.isNullOrBlank()) {
+            else if(partnerId.isNullOrBlank()) {
                 Toast.makeText(this, "Sender cannot be blank", Toast.LENGTH_LONG).show()
                 Log.i("tag", "Blank Sender")
             }
             else {
-                sentDataSet(txtMessage.text.toString())
-
-                db.document(DataSource.getDeviceID()).update(intent.getStringExtra(SENDER),
-                    FieldValue.arrayUnion(hashMapOf("sent" to txtMessage.text.toString())))
-                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully updated!") }
-                    .addOnFailureListener {
-                        db.document(DataSource.getDeviceID())
-                            .set(hashMapOf(intent.getStringExtra(SENDER) to FieldValue.arrayUnion(hashMapOf("sent" to txtMessage.text.toString()))),
-                            SetOptions.merge())
-                            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-                            .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
-                            }
-                    }
+                // Put all logic for both updating local data and database into one method
+                sendMessage(txtMessage.text.toString())
             }
 
             txtMessage.text.clear()
         }
     }
 
-    private fun sentDataSet(msg: String) {
-        val actionBar = supportActionBar
-        val senderName: String = intent.getStringExtra(SENDER)
-        actionBar!!.title = senderName
-
-        displayAdapter.sentList(msg, senderName, false)
-        messageList.scrollToPosition(displayAdapter.itemCount - 1)
+    // note from jon: this lifecycle method gets called just before an activity begins running
+    override fun onResume() {
+        super.onResume()
+        DataSource.addOnConversationUpdated(conversationUpdatedCallback)
     }
 
-    private fun addDataSet() {
-        val actionBar = supportActionBar
-        val senderName: String? = intent.getStringExtra(SENDER)
-        actionBar!!.title = senderName
+    // note from jon: this lifecycle method gets called just after an activity begins running
+    override fun onPause() {
+        super.onPause()
+        DataSource.removeOnConversationUpdated(conversationUpdatedCallback)
+    }
 
-        val intentMsg: String? = intent.getStringExtra(MESSAGE)
-        displayAdapter.submitList(intentMsg.toString(), senderName.toString(), true)
+    private fun sendMessage(msg: String) {
+        // add a message to the local system
+        val senderName: String = DataSource.getDeviceID()
+        // add message to display
+        displayAdapter.addMessage(msg, senderName)
+
+        // scroll adapter to bottom
+        messageList.scrollToPosition(displayAdapter.itemCount - 1)
+
+        // send message to database.
+        db.document(DataSource.getDeviceID()).update(partnerId,
+            FieldValue.arrayUnion(hashMapOf("sent" to txtMessage.text.toString())))
+            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully updated!") }
+            .addOnFailureListener {
+                db.document(DataSource.getDeviceID())
+                    .set(hashMapOf(intent.getStringExtra(SENDER) to FieldValue.arrayUnion(hashMapOf("sent" to txtMessage.text.toString()))),
+                        SetOptions.merge())
+                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
+                    .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
+                    }
+            }
+    }
+
+    // note from jon: Added this method to initialize the dataset in the recycler view
+    // We will grab the conversation that was set by
+    private fun initDataSet() {
+
+        var convo = DataSource.getConversations()[partnerId]!!
+        Log.i("messages", "Conversation with " + partnerId + " has " + convo.size + " Mesasges.")
+
+        // send the list to the display adapter
+        displayAdapter.submitList(convo)
+        // Scroll to bottom
         messageList.scrollToPosition(displayAdapter.itemCount - 1)
     }
 
@@ -85,7 +116,9 @@ class DisplayMessageActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@DisplayMessageActivity).apply {
                 stackFromEnd = true
             }
+            // Set 'this' DisplayMessageActivity's displayAdapter
             displayAdapter = DisplayRecyclerAdapter()
+            // Set the 'messageList''s adapter
             adapter = displayAdapter
         }
     }

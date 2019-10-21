@@ -11,6 +11,8 @@ import kotlinx.android.synthetic.main.activity_home_messages.*
 const val MESSAGE = "com.example.hushed.MESSAGE"
 const val SENDER = "com.example.hushed.SENDER"
 
+// Suggestion from jon: Rename this type "ConversationSelectActivity"
+// Naming things is hard, but that better describes what this activity is for
 class MessageActivity : AppCompatActivity() {
 
     private lateinit var messageAdapter: MessageRecyclerAdapter
@@ -24,13 +26,13 @@ class MessageActivity : AppCompatActivity() {
 
         new_message.setOnClickListener {
             Log.i("tag", "Click: new_message Button")
-            val intent = Intent(this, ContactsActivity::class.java)
+            val intent = Intent(this, DisplayMessageActivity::class.java)
             startActivity(intent)
         }
     }
 
     private fun addDataSet() {
-        val data = DataSource.getDataSet()
+        val data = DataSource.getConversationList()
         messageAdapter.submitList(data)
     }
 
@@ -44,7 +46,9 @@ class MessageActivity : AppCompatActivity() {
 
     private fun messageClicked(msg: Messages) {
         val intent = Intent(this, DisplayMessageActivity::class.java)
-        intent.putExtra(MESSAGE, msg.message)
+        // note from jon: removed the 'Message' extra
+        // only need to know who the conversation is supposed to be with
+        // we can retrieve the messages from the local database (DataSource)
         intent.putExtra(SENDER, msg.sender)
         startActivity(intent)
     }
