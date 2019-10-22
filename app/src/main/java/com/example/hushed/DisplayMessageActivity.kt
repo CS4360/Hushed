@@ -102,7 +102,7 @@ class DisplayMessageActivity : AppCompatActivity() {
     // We will grab the conversation that was set by
     private fun initDataSet() {
 
-        var convo = DataSource.getConversations()[partnerId]!!
+        var convo = DataSource.getConversations()[partnerId] ?: ArrayList()
         Log.i("messages", "Conversation with " + partnerId + " has " + convo.size + " Mesasges.")
 
         // send the list to the display adapter
