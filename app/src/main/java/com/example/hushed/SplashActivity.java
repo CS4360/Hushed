@@ -1,6 +1,7 @@
 package com.example.hushed;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.app.Activity;
 import android.os.Bundle;
@@ -11,28 +12,40 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
 
-        mWaitHandler.postDelayed(new Runnable() {
+        final String PREFS_NAME = "MyPrefsFile";
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
-            @Override
-            public void run() {
+        if (settings.getBoolean("my_first_time", true)) {
 
-                //The following code will execute after the 5 seconds.
+            setContentView(R.layout.activity_splash);
 
-                try {
+            mWaitHandler.postDelayed(new Runnable() {
 
-                    //Go to next page i.e, start the next activity.
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(intent);
+                @Override
+                public void run() {
 
-                    //Let's Finish Splash Activity since we don't want to show this when user press back button.
-                    finish();
-                } catch (Exception ignored) {
-                    ignored.printStackTrace();
+                    //The following code will execute after the 3 seconds.
+
+                    try {
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } catch (Exception ignored) {
+                        ignored.printStackTrace();
+                    }
                 }
-            }
-        }, 4000);  // Give a 4 seconds delay.
+            }, 3000);
+
+            settings.edit().putBoolean("my_first_time", false).commit();
+        }
+
+        // https://stackoverflow.com/questions/4636141/determine-if-android-app-is-the-first-time-used
+
+        else {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        }
     }
 
     @Override

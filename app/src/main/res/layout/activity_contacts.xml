@@ -7,12 +7,13 @@
 
     <EditText
         android:id="@+id/enter_contact"
-        android:layout_width="288dp"
+        android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:ems="10"
-        android:hint="Enter Contact"
+        android:hint="@string/prompt_enterContact"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -22,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Enter"
+        android:text="@string/button_enter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/enter_contact"
         app:layout_constraintTop_toTopOf="parent" />
