@@ -9,6 +9,7 @@ import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -187,6 +188,13 @@ class MainActivity : AppCompatActivity() {
         // ABOUT BUTTON **************************************************************************
         button_about.setOnClickListener {
             Log.i("Button","Click: button_about")
+
+            var date = Date()
+            val formatter = SimpleDateFormat("MM dd yy HH:mm a")
+            val answer: String = formatter.format(date)
+
+            Log.i("Time", "Current time is $answer")
+
         }
 
         // Dummy Send BUTTON **************************************************************************
