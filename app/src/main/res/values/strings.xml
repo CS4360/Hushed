@@ -8,6 +8,8 @@
     <string name="button_dummysend">Dummy Send</string>
     <string name="button_dummyretrieve">Dummy Retrieve</string>
     <string name="button_send">Send</string>
-    <string name="message_prompt">Enter message</string>
-    <string name="messageText">%1$s</string>
+    <string name="button_enter">Enter</string>
+    <string name="button_newContact">+</string>
+    <string name="prompt_enterContact">Enter Contact</string>
+    <string name="prompt_enterMesssage">Enter message</string>
 </resources>
