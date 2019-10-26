@@ -19,29 +19,37 @@ class MainActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
     private val dummyMessages = listOf( Messages(
-        sender = "Frient Unit 1",
-        message = "Hey there!"
+        sender = "Friend Unit 1",
+        message = "Hey there!",
+        timestamp = "MM/dd/yy HH:mm a"
     ), Messages(
         sender = "Parental Unit 1",
-        message = "Please call me back"
+        message = "Please call me back",
+        timestamp = "MM/dd/yy HH:mm a"
     ), Messages(
         sender = "Friend Unit 2",
-        message = "Just wanted to let you know..."
+        message = "Just wanted to let you know...",
+        timestamp = "MM/dd/yy HH:mm a"
     ), Messages(
         sender = "Sibling Unit 1",
-        message = "Please don't tell Parental Unit 1 about this"
+        message = "Please don't tell Parental Unit 1 about this",
+        timestamp = "MM/dd/yy HH:mm a"
     ), Messages(
         sender = "Friend Unit 3",
-        message = "Bruh!"
+        message = "Bruh!",
+        timestamp = "MM/dd/yy HH:mm a"
     ), Messages(
         sender = "Group Member 1",
-        message = "Need the report to be finished soon"
+        message = "Need the report to be finished soon",
+        timestamp = "MM/dd/yy HH:mm a"
     ), Messages(
         sender = "Parental Unit 2",
-        message = "See you this weekend"
+        message = "See you this weekend",
+        timestamp = "MM/dd/yy HH:mm a"
     ), Messages(
         sender = "Gandalf the Grey",
-        message = "You Shall Not PASS!"
+        message = "You Shall Not PASS!",
+        timestamp = "MM/dd/yy HH:mm a"
     ))
 
     private var dummyData = dummyMessages.map {it.sender to (arrayListOf(hashMapOf("received" to it.message)))}.toMap()
@@ -85,9 +93,9 @@ class MainActivity : AppCompatActivity() {
                         // it shows the user who the conversation is with
                         // todo: translate ID to name of partner, and display that instead
                         var lastMsg = convo[convo.size-1]
-                        conversationList.add(Messages(lastMsg.message, partnerId))
+                        conversationList.add(Messages(lastMsg.message, partnerId, lastMsg.timestamp))
 
-                        // Store entire conversation into dataset
+                        // Store entire conversation into data set
                         conversationMap[partnerId] = convo
 
                     }
@@ -129,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                                             }
 
                                             var lastMsg = convo[convo.size-1]
-                                            var msg = Messages("---", "NOT_FOUND")
+                                            var msg = Messages("---", "NOT_FOUND", "CANNOT DISPLAY TIME")
                                             // Find the conversation object for the updated conversation
                                             for (i in conversationList.indices) {
                                                 if (conversationList[i].sender == partnerId) {
@@ -156,7 +164,7 @@ class MainActivity : AppCompatActivity() {
 
                                         // Add conversation to list so it can be seletected
                                         var lastMsg = convo[convo.size-1]
-                                        conversationList.add(0, Messages(lastMsg.message, partnerId))
+                                        conversationList.add(0, Messages(lastMsg.message, partnerId, lastMsg.timestamp))
 
                                         // Store entire conversation into dataset
                                         conversationMap[partnerId] = convo
@@ -190,10 +198,10 @@ class MainActivity : AppCompatActivity() {
             Log.i("Button","Click: button_about")
 
             var date = Date()
-            val formatter = SimpleDateFormat("MM dd yy HH:mm a")
-            val answer: String = formatter.format(date)
+            val formatter = SimpleDateFormat("MM/dd/yy HH:mm a")
+            val timestamp: String = formatter.format(date)
 
-            Log.i("Time", "Current time is $answer")
+            Log.i("Time", "Current time is $timestamp")
 
         }
 
@@ -215,18 +223,27 @@ class MainActivity : AppCompatActivity() {
     private fun extractMessage(messageData: HashMap<*,*>, partnerId: String, ownId: String): Messages {
         var str = "[NO MESSAGE]"
         var sender = "[NO SENDER]"
+        var time = "[NO TIME]"
         if (messageData.containsKey("received") && messageData["received"] is String) {
             str = messageData["received"] as String
             sender = partnerId
+            // todo add timeReceived key to DB
+            //time = messageData["timestamp"] as String
         }
         if (messageData.containsKey("sent") && messageData["sent"] is String) {
             str = messageData["sent"] as String
             sender = ownId
+            // todo add timeSent key to DB
+            // time = messageData["timestamp"] as String
+        }
+        if (messageData.containsKey("timestamp") && messageData["timestamp"] is String) {
+            time = messageData["timestamp"] as String
         }
 
         var msg = Messages(
             sender = sender,
-            message = str
+            message = str,
+            timestamp = time
         )
 
         return msg

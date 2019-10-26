@@ -9,6 +9,9 @@ import com.google.firebase.firestore.FieldValue
 import kotlinx.android.synthetic.main.activity_message_chat.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class DisplayMessageActivity : AppCompatActivity() {
 
@@ -32,7 +35,7 @@ class DisplayMessageActivity : AppCompatActivity() {
         initRecyclerView()
 
         // note from jon:
-        // Get SENDER extra, descibing id of who the conversation is with
+        // Get SENDER extra, describing id of who the conversation is with
         partnerId = intent.getStringExtra(SENDER) ?: ""
         // Set the currently viewed conversation in the shared DataSource
         DataSource.setViewingConversation(partnerId)
@@ -45,6 +48,11 @@ class DisplayMessageActivity : AppCompatActivity() {
         initDataSet()
 
         btnSend.setOnClickListener{
+
+            var date = Date()
+            val formatter = SimpleDateFormat("MM/dd/yy HH:mm a")
+            val timestamp: String = formatter.format(date)
+
             Log.i("tag", "Click: send_button Button")
             if(txtMessage.text.isNullOrBlank()) {
                 Toast.makeText(this@DisplayMessageActivity, "Message cannot be blank", Toast.LENGTH_LONG).show()
@@ -56,7 +64,7 @@ class DisplayMessageActivity : AppCompatActivity() {
             }
             else {
                 // Put all logic for both updating local data and database into one method
-                sendMessage(txtMessage.text.toString())
+                sendMessage(txtMessage.text.toString(), timestamp)
             }
 
             txtMessage.text.clear()
@@ -75,11 +83,11 @@ class DisplayMessageActivity : AppCompatActivity() {
         DataSource.removeOnConversationUpdated(conversationUpdatedCallback)
     }
 
-    private fun sendMessage(msg: String) {
+    private fun sendMessage(msg: String, timestamp: String) {
         // add a message to the local system
         val senderName: String = DataSource.getDeviceID()
         // add message to display
-        displayAdapter.addMessage(msg, senderName)
+        displayAdapter.addMessage(msg, senderName, timestamp)
 
         // scroll adapter to bottom
         messageList.scrollToPosition(displayAdapter.itemCount - 1)
@@ -98,7 +106,7 @@ class DisplayMessageActivity : AppCompatActivity() {
             }
     }
 
-    // note from jon: Added this method to initialize the dataset in the recycler view
+    // note from jon: Added this method to initialize the data set in the recycler view
     // We will grab the conversation that was set by
     private fun initDataSet() {
 

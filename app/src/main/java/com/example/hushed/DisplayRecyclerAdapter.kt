@@ -41,10 +41,11 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     // note from jon: renamed this from 'sendList', this name is a bit more clear
-    fun addMessage(msg: String, sender: String) {
+    fun addMessage(msg: String, sender: String, time: String) {
         messages.add(Messages(
             sender = sender,
-            message = msg
+            message = msg,
+            timestamp = time
         ))
         Log.i("tag", "In addMessage method")
         notifyDataSetChanged()
@@ -71,7 +72,7 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 // if we are displaying a 'sent' message, make sure we show only 'sent' features.
                 sentMessage.text = msg.message
                 sentMessage.visibility = View.VISIBLE
-                sentMessageTime.text = "--/--/--"
+                sentMessageTime.text = msg.timestamp
                 sentMessageTime.visibility = View.VISIBLE
                 // hide all received views
                 receivedMessage.text = ""
@@ -84,7 +85,7 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 // if we are displaying a 'received' message, make sure we show only 'received' features.
                 receivedMessage.text = msg.message
                 receivedMessage.visibility = View.VISIBLE
-                receivedMessageTime.text = "--/--/--"
+                receivedMessageTime.text = msg.timestamp
                 receivedMessageTime.visibility = View.VISIBLE
                 // hide all 'sent' views
                 sentMessage.text = ""
