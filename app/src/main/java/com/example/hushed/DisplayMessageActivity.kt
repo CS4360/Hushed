@@ -93,17 +93,29 @@ class DisplayMessageActivity : AppCompatActivity() {
         messageList.scrollToPosition(displayAdapter.itemCount - 1)
 
         // send message to database.
+//        db.document(DataSource.getDeviceID()).update(partnerId,
+//            FieldValue.arrayUnion(hashMapOf(timestamp to txtMessage.text.toString())))
+//            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully updated!") }
+//            .addOnFailureListener {
+//                db.document(DataSource.getDeviceID())
+//                    .set(hashMapOf(intent.getStringExtra(SENDER) to FieldValue.arrayUnion(hashMapOf(timestamp to txtMessage.text.toString()))),
+//                        SetOptions.merge())
+//                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
+//                    .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
+//                    }
+//            }
+
         db.document(DataSource.getDeviceID()).update(partnerId,
-            FieldValue.arrayUnion(hashMapOf("sent" to txtMessage.text.toString())))
+            hashMapOf(timestamp to txtMessage.text.toString()))
             .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully updated!") }
-            .addOnFailureListener {
-                db.document(DataSource.getDeviceID())
-                    .set(hashMapOf(intent.getStringExtra(SENDER) to FieldValue.arrayUnion(hashMapOf("sent" to txtMessage.text.toString()))),
-                        SetOptions.merge())
-                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-                    .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
-                    }
-            }
+            .addOnFailureListener { e -> Log.w("Firebase", "Error updating document", e )}
+//
+//        db.document(DataSource.getDeviceID())
+//            .set(hashMapOf(intent.getStringExtra(SENDER) to hashMapOf(timestamp to txtMessage.text.toString())),
+//                SetOptions.merge())
+//            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
+//            .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
+//            }
     }
 
     // note from jon: Added this method to initialize the data set in the recycler view

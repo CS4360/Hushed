@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         timestamp = "MM/dd/yy HH:mm a"
     ))
 
-    private var dummyData = dummyMessages.map {it.sender to (arrayListOf(hashMapOf("received" to it.message)))}.toMap()
+    private var dummyData = dummyMessages.map {it.sender to (hashMapOf("MM/dd/yy HH:mm:ss:SS a" to it.message))}.toMap()
     // A timer lets us schedule repeated actions
     private var timer: Timer = Timer()
 
@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
                     var ownId = DataSource.getDeviceID()
 
                     for((key, value) in doc.data.orEmpty()) {
-                        var allMessages = doc.get(key) as ArrayList<HashMap<*, *>>
+                        var allMessages = doc.get(key) as HashMap<*, *>
                         var convo = ArrayList<Messages>()
                         var partnerId = key
 
@@ -198,7 +198,7 @@ class MainActivity : AppCompatActivity() {
             Log.i("Button","Click: button_about")
 
             var date = Date()
-            val formatter = SimpleDateFormat("MM/dd/yy HH:mm a")
+            val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss:SS a")
             val timestamp: String = formatter.format(date)
 
             Log.i("Time", "Current time is $timestamp")
@@ -224,26 +224,16 @@ class MainActivity : AppCompatActivity() {
         var str = "[NO MESSAGE]"
         var sender = "[NO SENDER]"
         var time = "[NO TIME]"
-        if (messageData.containsKey("received") && messageData["received"] is String) {
-            str = messageData["received"] as String
-            sender = partnerId
-            // todo add timeReceived key to DB
-            //time = messageData["timestamp"] as String
-        }
-        if (messageData.containsKey("sent") && messageData["sent"] is String) {
-            str = messageData["sent"] as String
-            sender = ownId
-            // todo add timeSent key to DB
-            // time = messageData["timestamp"] as String
-        }
-        if (messageData.containsKey("timestamp") && messageData["timestamp"] is String) {
-            time = messageData["timestamp"] as String
-        }
+
+        // timestamp is the key!
+        val timestamp = messageData.keys.elementAt(0).toString()
+        str = messageData.get(timestamp).toString()
+        sender = partnerId
 
         var msg = Messages(
             sender = sender,
             message = str,
-            timestamp = time
+            timestamp = timestamp
         )
 
         return msg
