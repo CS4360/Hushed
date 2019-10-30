@@ -140,14 +140,14 @@ class MainActivity : AppCompatActivity() {
         // We can decrease the interval to see faster responses.
         // Ex. var task = timer.scheduleAtFixedRate(1*1000L, 1 * 1000L)
         timer.scheduleAtFixedRate(10*1000L, 10 * 1000L) {
+            var conversationChanged = false
+            var conversationList = DataSource.getConversationList()
+            var conversationMap = DataSource.getConversations()
+
             Log.i("Conversations", "Refreshing conversations")
             db.document(DataSource.getDeviceID()).get()
                 .addOnSuccessListener { doc ->
                     Log.i("Database", "Got new data!")
-
-                    var conversationChanged = false
-                    var conversationList = DataSource.getConversationList()
-                    var conversationMap = DataSource.getConversations()
 
                     for((key, value) in doc.data.orEmpty()) {
                         var allMessages = (doc.get(key) as HashMap<Any, Any>).toSortedMap(
