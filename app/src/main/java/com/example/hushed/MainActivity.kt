@@ -82,9 +82,11 @@ class MainActivity : AppCompatActivity() {
 
                         Log.i("messages", "Got " + allMessages.size + " messages for convo with " + key)
                         // Load all messages in conversation into memory
-                        for (messageData in allMessages) {
-                            convo.add(extractMessage(messageData, partnerId, ownId))
+
+                        for((timestamp, message) in allMessages) {
+                            convo.add(extractMessage(hashMapOf(timestamp to message), partnerId, ownId))
                         }
+
 
                         // Add modified version of last message from conversation to list
                         // where we set the 'sender' to be the partner,
@@ -114,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                                 var conversationMap = DataSource.getConversations()
 
                                 for((key, value) in doc.data.orEmpty()) {
-                                    var allMessages = doc.get(key) as ArrayList<HashMap<*, *>>
+                                    var allMessages = doc.get(key) as HashMap<*, *>
                                     var partnerId = key
                                     // check if we are missing a conversation:
 
@@ -130,10 +132,8 @@ class MainActivity : AppCompatActivity() {
 
                                             // Add new messages into the conversation
                                             var i = convo.size
-                                            while (i < allMessages.size) {
-                                                var messageData = allMessages[i]
-                                                convo.add(extractMessage(messageData, partnerId, ownId))
-                                                i++
+                                            for((timestamp, message) in allMessages) {
+                                                convo.add(extractMessage(hashMapOf(timestamp to message), partnerId, ownId))
                                             }
 
                                             var lastMsg = convo[convo.size-1]
@@ -158,9 +158,11 @@ class MainActivity : AppCompatActivity() {
                                         Log.i("database", "new conversation with " + partnerId + "!");
                                         var convo = ArrayList<Messages>()
                                         // we don't yet have this conversation, so add the entire conversation to local data.
-                                        for (messageData in allMessages) {
-                                            convo.add(extractMessage(messageData, partnerId, ownId))
+
+                                        for((timestamp, message) in allMessages) {
+                                            convo.add(extractMessage(hashMapOf(timestamp to message), partnerId, ownId))
                                         }
+
 
                                         // Add conversation to list so it can be seletected
                                         var lastMsg = convo[convo.size-1]
