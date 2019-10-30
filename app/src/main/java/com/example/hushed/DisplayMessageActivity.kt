@@ -50,7 +50,7 @@ class DisplayMessageActivity : AppCompatActivity() {
         btnSend.setOnClickListener{
 
             var date = Date()
-            val formatter = SimpleDateFormat("MM/dd/yy HH:mm a")
+            val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss:SS a")
             val timestamp: String = formatter.format(date)
 
             Log.i("tag", "Click: send_button Button")
@@ -93,29 +93,12 @@ class DisplayMessageActivity : AppCompatActivity() {
         messageList.scrollToPosition(displayAdapter.itemCount - 1)
 
         // send message to database.
-//        db.document(DataSource.getDeviceID()).update(partnerId,
-//            FieldValue.arrayUnion(hashMapOf(timestamp to txtMessage.text.toString())))
-//            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully updated!") }
-//            .addOnFailureListener {
-//                db.document(DataSource.getDeviceID())
-//                    .set(hashMapOf(intent.getStringExtra(SENDER) to FieldValue.arrayUnion(hashMapOf(timestamp to txtMessage.text.toString()))),
-//                        SetOptions.merge())
-//                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-//                    .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
-//                    }
-//            }
-
-        db.document(DataSource.getDeviceID()).update(partnerId,
-            hashMapOf(timestamp to txtMessage.text.toString()))
-            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully updated!") }
-            .addOnFailureListener { e -> Log.w("Firebase", "Error updating document", e )}
-//
-//        db.document(DataSource.getDeviceID())
-//            .set(hashMapOf(intent.getStringExtra(SENDER) to hashMapOf(timestamp to txtMessage.text.toString())),
-//                SetOptions.merge())
-//            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-//            .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
-//            }
+        db.document(DataSource.getDeviceID())
+            .set(hashMapOf(partnerId to hashMapOf(timestamp to txtMessage.text.toString())),
+                SetOptions.merge())
+            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
+            .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
+            }
     }
 
     // note from jon: Added this method to initialize the data set in the recycler view
