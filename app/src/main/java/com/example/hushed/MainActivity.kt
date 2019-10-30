@@ -26,30 +26,6 @@ class MainActivity : AppCompatActivity() {
         sender = "Parental Unit 1",
         message = "Please call me back",
         timestamp = "MM/dd/yy HH:mm a"
-    ), Messages(
-        sender = "Friend Unit 2",
-        message = "Just wanted to let you know...",
-        timestamp = "MM/dd/yy HH:mm a"
-    ), Messages(
-        sender = "Sibling Unit 1",
-        message = "Please don't tell Parental Unit 1 about this",
-        timestamp = "MM/dd/yy HH:mm a"
-    ), Messages(
-        sender = "Friend Unit 3",
-        message = "Bruh!",
-        timestamp = "MM/dd/yy HH:mm a"
-    ), Messages(
-        sender = "Group Member 1",
-        message = "Need the report to be finished soon",
-        timestamp = "MM/dd/yy HH:mm a"
-    ), Messages(
-        sender = "Parental Unit 2",
-        message = "See you this weekend",
-        timestamp = "MM/dd/yy HH:mm a"
-    ), Messages(
-        sender = "Gandalf the Grey",
-        message = "You Shall Not PASS!",
-        timestamp = "MM/dd/yy HH:mm a"
     ))
 
     private var dummyData = dummyMessages.map {it.sender to (hashMapOf("MM/dd/yy HH:mm:ss:SS a" to it.message))}.toMap()
