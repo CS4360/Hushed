@@ -52,7 +52,8 @@ class MainActivity : AppCompatActivity() {
                     var ownId = DataSource.getDeviceID()
 
                     for((key, value) in doc.data.orEmpty()) {
-                        var allMessages = doc.get(key) as HashMap<*, *>
+                        var allMessages = (doc.get(key) as HashMap<Any, Any>).toSortedMap(
+                            compareBy { it as Comparable<*> })
                         var convo = ArrayList<Messages>()
                         var partnerId = key
 
@@ -92,7 +93,8 @@ class MainActivity : AppCompatActivity() {
                                 var conversationMap = DataSource.getConversations()
 
                                 for((key, value) in doc.data.orEmpty()) {
-                                    var allMessages = doc.get(key) as HashMap<*, *>
+                                    var allMessages = (doc.get(key) as HashMap<Any, Any>).toSortedMap(
+                                        compareBy { it as Comparable<*> })
                                     var partnerId = key
                                     // check if we are missing a conversation:
 
