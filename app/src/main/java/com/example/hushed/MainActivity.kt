@@ -21,14 +21,14 @@ class MainActivity : AppCompatActivity() {
     private val dummyMessages = listOf( Messages(
         sender = "Friend Unit 1",
         message = "Hey there!",
-        timestamp = "MM/dd/yy HH:mm a"
+        timestamp = "01/01/01 00:00:00:00 a"
     ), Messages(
         sender = "Parental Unit 1",
         message = "Please call me back",
-        timestamp = "MM/dd/yy HH:mm a"
+        timestamp = "01/01/01 00:00:00:00 a"
     ))
 
-    private var dummyData = dummyMessages.map {it.sender to (hashMapOf("MM/dd/yy HH:mm:ss:SS a" to it.message))}.toMap()
+    private var dummyData = dummyMessages.map {it.sender to (hashMapOf("01/01/01 00:00:00:00 AM" to it.message))}.toMap()
     // A timer lets us schedule repeated actions
     private var timer: Timer = Timer()
 
@@ -178,7 +178,7 @@ class MainActivity : AppCompatActivity() {
             Log.i("Button","Click: button_about")
 
             var date = Date()
-            val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss:SS a")
+            val formatter = SimpleDateFormat("01/01/01 00:00:00:00 AM")
             val timestamp: String = formatter.format(date)
 
             Log.i("Time", "Current time is $timestamp")
