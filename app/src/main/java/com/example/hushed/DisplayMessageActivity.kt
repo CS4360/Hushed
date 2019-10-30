@@ -93,12 +93,24 @@ class DisplayMessageActivity : AppCompatActivity() {
         messageList.scrollToPosition(displayAdapter.itemCount - 1)
 
         // send message to database.
-        db.document(DataSource.getDeviceID())
-            .set(hashMapOf(partnerId to hashMapOf(timestamp to txtMessage.text.toString())),
+          // old way of doing it
+//        db.document(DataSource.getDeviceID())
+//            .set(hashMapOf(partnerId to hashMapOf(timestamp to txtMessage.text.toString())),
+//                SetOptions.merge())
+//            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
+//            .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
+//            }
+
+        //document(parnerID -> username -> UUID of person we want to connect to)
+        //right now partnerId is the just the string of the person we want to connect to
+        db.document(partnerId)
+            .set(hashMapOf(DataSource.getDeviceID() to hashMapOf(timestamp to txtMessage.text.toString())),
                 SetOptions.merge())
             .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
             .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
             }
+
+
     }
 
     // note from jon: Added this method to initialize the data set in the recycler view
