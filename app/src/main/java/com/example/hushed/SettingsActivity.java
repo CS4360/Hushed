@@ -21,8 +21,8 @@ import java.util.Map;
 
 
 public class SettingsActivity extends AppCompatActivity {
-    private CollectionReference db = FirebaseFirestore.getInstance()
-            .collection("db");
+    private CollectionReference nicknames = FirebaseFirestore.getInstance()
+            .collection("nicknames");
 
     private TextView nicknameMessage;
     private Button nicknameButton;
@@ -49,59 +49,66 @@ public class SettingsActivity extends AppCompatActivity {
         nickname.setEnabled(false);
         nicknameProgress.setVisibility(View.VISIBLE);
         nicknameMessage.setText("Loading nicknames...");
+        String requestedNickname = nickname.getText().toString();
 
-        db.document("nicknames")
+        nicknames.document(requestedNickname)
                 .get()
-                .addOnSuccessListener(this::onNicknamesLoaded);
+                .addOnSuccessListener(this::onNicknamesLoaded)
+                .addOnFailureListener((err) -> {
+                    Log.e("Test", "Failed to get " + requestedNickname + ": " + err);
+                });
     }
 
     private void onNicknamesLoaded(DocumentSnapshot doc) {
         String requestedName = nickname.getText().toString();
         String id = DataSource.Companion.getDeviceID();
-        String oldName = null;
 
-        Map<String, Object> data = doc.getData();
-        for (String name : data.keySet()) {
-            Log.i("Test", name + ": " + data.get(name));
-            if (data.get(name).equals(id)) {
-                oldName = name;
-            }
-        }
-        if (oldName != null && oldName.equals(requestedName)) {
-            nicknameMessage.setText("You already have that nickname!");
-            nickname.setEnabled(true);
-            nicknameButton.setEnabled(true);
-            nicknameProgress.setVisibility(View.GONE);
-            return;
-        }
-        if (data.containsKey(requestedName)) {
-            nicknameMessage.setText("Someone else already has that name!");
-            nickname.setEnabled(true);
-            nicknameButton.setEnabled(true);
-            nicknameProgress.setVisibility(View.GONE);
-            return;
-        }
+        nicknames.whereEqualTo("id", id)
+                .get()
+                .addOnSuccessListener((query) -> {
+                    boolean hasOldName = query.size() > 0;
+                    String oldName = hasOldName ? query.getDocuments().get(0).getId() : null;
 
-        Map<String, Object> setData = new HashMap<>();
-        if (oldName != null) {
-            setData.put(oldName, FieldValue.delete());
-        }
-        setData.put(requestedName, id);
+                    Map<String, Object> data = doc.getData();
 
-        db.document("nicknames")
-                .set(setData, SetOptions.merge())
-                .addOnSuccessListener((succ) -> {
-                    nicknameProgress.setVisibility(View.GONE);
-                    nickname.setEnabled(true);
-                    nicknameButton.setEnabled(true);
-                    nicknameMessage.setText("Congrats, you are now " + requestedName + "!");
-                })
-                .addOnFailureListener((err) -> {
-                    nicknameProgress.setVisibility(View.GONE);
-                    nickname.setEnabled(true);
-                    nicknameButton.setEnabled(true);
-                    nicknameMessage.setText("Sorry, you didn't get " + requestedName + "!");
+                    if (data == null || data.size() == 0) {
+                        Map<String, Object> setData = new HashMap<>();
+                        setData.put("id", id);
+
+                        if (oldName != null) {
+                            nicknames.document(oldName).delete();
+                        }
+
+                        nicknames.document(requestedName)
+                                .set(setData, SetOptions.merge())
+                                .addOnSuccessListener((succ) -> {
+                                    nicknameProgress.setVisibility(View.GONE);
+                                    nickname.setEnabled(true);
+                                    nicknameButton.setEnabled(true);
+                                    nicknameMessage.setText("Congrats, you are now " + requestedName + "!");
+                                })
+                                .addOnFailureListener((err) -> {
+                                    nicknameProgress.setVisibility(View.GONE);
+                                    nickname.setEnabled(true);
+                                    nicknameButton.setEnabled(true);
+                                    nicknameMessage.setText("Sorry, you didn't get " + requestedName + "!");
+                                });
+                    } else {
+                        String otherId = (String) data.get("id");
+                        if (otherId.equals(id)) {
+                            nicknameMessage.setText("You already have that nickname!");
+                            nickname.setEnabled(true);
+                            nicknameButton.setEnabled(true);
+                            nicknameProgress.setVisibility(View.GONE);
+                        } else {
+                            nicknameMessage.setText("Someone else already has that name!");
+                            nickname.setEnabled(true);
+                            nicknameButton.setEnabled(true);
+                            nicknameProgress.setVisibility(View.GONE);
+                        }
+
+                    }
+
                 });
-
     }
 }
