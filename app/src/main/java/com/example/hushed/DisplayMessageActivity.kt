@@ -5,7 +5,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.firestore.FieldValue
 import kotlinx.android.synthetic.main.activity_message_chat.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -50,7 +49,7 @@ class DisplayMessageActivity : AppCompatActivity() {
         btnSend.setOnClickListener{
 
             var date = Date()
-            val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss:SS a")
+            val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS a")
             val timestamp: String = formatter.format(date)
 
             Log.i("tag", "Click: send_button Button")

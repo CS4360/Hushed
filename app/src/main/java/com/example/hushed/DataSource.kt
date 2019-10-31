@@ -8,10 +8,6 @@ import com.example.hushed.models.Messages
 import kotlin.collections.ArrayList
 
 class DataSource {
-
-    // Note from jon: companion objects are like static objects.
-    // This is essentially a static/global database, which is fine
-    // so long as you understand any part of the app can access and modify this data.
     companion object {
         // to hold the last message of various users, displayed when selecting a conversation.
         private var conversationList = ArrayList<Messages>()

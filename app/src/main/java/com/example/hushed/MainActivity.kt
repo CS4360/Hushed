@@ -28,195 +28,98 @@ class MainActivity : AppCompatActivity() {
         timestamp = "01/01/01 00:00:00:00 a"
     ))
 
-    private var dummyData = dummyMessages.map {it.sender to (hashMapOf("01/01/01 00:00:00:00 AM" to it.message))}.toMap()
-    // A timer lets us schedule repeated actions
     private var timer: Timer = Timer()
+    private var dummyData = dummyMessages.map {it.sender to (hashMapOf("01/01/01 00:00:00:00 AM"
+            to it.message))}.toMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         DataSource.setDeviceID(checkAddress().toString())
 
-        // CONNECT BUTTON **************************************************************************
         button_connect.setOnClickListener {
-            Log.i("Button","Click: button_connect")
+            Log.i("Button","Click: Connect button clicked")
 
+            var conversationList = DataSource.getConversationList()
+            var conversationMap = DataSource.getConversations()
 
             db.document(DataSource.getDeviceID()).get()
                 .addOnSuccessListener { doc ->
-                    // Get current list of conversations
-                    // initially, this is empty.
-                    var conversationList = DataSource.getConversationList()
-                    var conversationMap = DataSource.getConversations()
-                    var ownId = DataSource.getDeviceID()
-
                     for((key, value) in doc.data.orEmpty()) {
+                        var partnerId = key
+                        var conversation = ArrayList<Messages>()
                         var allMessages = (doc.get(key) as HashMap<Any, Any>).toSortedMap(
                             compareBy { it as Comparable<*> })
-                        var convo = ArrayList<Messages>()
-                        var partnerId = key
 
-                        Log.i("messages", "Got " + allMessages.size + " messages for convo with " + key)
-                        // Load all messages in conversation into memory
+                        Log.i("Messages", "Got " + allMessages.size +
+                                " messages for conversation with " + key)
 
                         for((timestamp, message) in allMessages) {
-                            convo.add(extractMessage(hashMapOf(timestamp to message), partnerId, ownId))
+                            var message = extractMessage(hashMapOf(timestamp to message), partnerId)
+                            if((message !in conversationList)) {
+                                conversation.add(message)
+                            }
                         }
 
+                        if(conversation.isNotEmpty()) {
+                            var lastMsg = conversation[conversation.size-1]
+                            conversationList.add(Messages(lastMsg.message, partnerId,
+                                lastMsg.timestamp))
 
-                        // Add modified version of last message from conversation to list
-                        // where we set the 'sender' to be the partner,
-                        // regardless of who actually sent that message
-                        // so when it is displayed in the list,
-                        // it shows the user who the conversation is with
-                        // todo: translate ID to name of partner, and display that instead
-                        var lastMsg = convo[convo.size-1]
-                        conversationList.add(Messages(lastMsg.message, partnerId, lastMsg.timestamp))
-
-                        // Store entire conversation into data set
-                        conversationMap[partnerId] = convo
-
+                            conversationMap[partnerId] = conversation
+                        }
                     }
 
-                    // Wait 10 seconds, and repeat some stuff every 10 seconds to get new live data
-                    // for testing, we can do every second to see faster responses.
-//                    var task = timer.scheduleAtFixedRate(1*1000L, 1 * 1000L) {
-                    // Todo: Extract lambda into its own method
-                    var task = timer.scheduleAtFixedRate(10*1000L, 10 * 1000L) {
-                        Log.i("database", "refreshing database")
-                        db.document(DataSource.getDeviceID()).get()
-                            .addOnSuccessListener { doc ->
-                                Log.i("database", "Got new data!");
-                                var conversationChanged = false
-                                var conversationList = DataSource.getConversationList()
-                                var conversationMap = DataSource.getConversations()
+                    refreshConversations()
 
-                                for((key, value) in doc.data.orEmpty()) {
-                                    var allMessages = (doc.get(key) as HashMap<Any, Any>).toSortedMap(
-                                        compareBy { it as Comparable<*> })
-                                    var partnerId = key
-                                    // check if we are missing a conversation:
-
-                                    if (conversationMap.containsKey(key)) {
-
-                                        // we already have this conversation, check if we're missing new messages
-                                        var convo = conversationMap[key]!!
-                                        if (allMessages.size > convo.size) {
-                                            conversationChanged = key.equals(DataSource.getViewingConversation());
-                                            Log.i("database", "new messages for " + partnerId + "!");
-                                            // New messages coming in !
-                                            // for (i in convo.size..allMessages.size) {
-
-                                            // Add new messages into the conversation
-                                            var i = convo.size
-                                            for((timestamp, message) in allMessages) {
-                                                convo.add(extractMessage(hashMapOf(timestamp to message), partnerId, ownId))
-                                            }
-
-                                            var lastMsg = convo[convo.size-1]
-                                            var msg = Messages("---", "NOT_FOUND", "CANNOT DISPLAY TIME")
-                                            // Find the conversation object for the updated conversation
-                                            for (i in conversationList.indices) {
-                                                if (conversationList[i].sender == partnerId) {
-                                                    msg = conversationList[i]
-                                                }
-                                            }
-                                            // and remove it...
-                                            conversationList.remove(msg)
-                                            // and add it back into the beginning of the list
-                                            // to bump it to the 'top' of the list.
-                                            conversationList.add(0, msg)
-                                            // update message object with last message
-                                            msg.message = lastMsg.message
-                                        }
-
-
-                                    } else {
-                                        Log.i("database", "new conversation with " + partnerId + "!");
-                                        var convo = ArrayList<Messages>()
-                                        // we don't yet have this conversation, so add the entire conversation to local data.
-
-                                        for((timestamp, message) in allMessages) {
-                                            convo.add(extractMessage(hashMapOf(timestamp to message), partnerId, ownId))
-                                        }
-
-
-                                        // Add conversation to list so it can be seletected
-                                        var lastMsg = convo[convo.size-1]
-                                        conversationList.add(0, Messages(lastMsg.message, partnerId, lastMsg.timestamp))
-
-                                        // Store entire conversation into dataset
-                                        conversationMap[partnerId] = convo
-                                    }
-                                }
-
-                                // If the conversation that was being viewed has changed,
-                                // call whatever was waiting for that message
-                                if (conversationChanged) {
-                                    DataSource.conversationUpdated()
-                                }
-                            }
-                    }
-
-                    // Start next activity
                     val intent = Intent(this, MessageActivity::class.java)
                     startActivity(intent)
 
                 }
-                .addOnFailureListener { e -> Log.w("Firebase", "Error retrieving document", e) }
+                .addOnFailureListener { e -> Log.w("Firebase",
+                    "Error retrieving document from database", e) }
         }
 
-        // SETTINGS BUTTON **************************************************************************
         button_settings.setOnClickListener {
-            println("SETTINGS BUTTON")
-            Log.i("Button","Click: button_settings")
+            Log.i("Button","Click: Settings button clicked")
         }
 
-        // ABOUT BUTTON **************************************************************************
         button_about.setOnClickListener {
-            Log.i("Button","Click: button_about")
+            Log.i("Button","Click: About button clicked")
 
             var date = Date()
-            val formatter = SimpleDateFormat("01/01/01 00:00:00:00 AM")
+            val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS a")
             val timestamp: String = formatter.format(date)
 
             Log.i("Time", "Current time is $timestamp")
 
         }
 
-        // Dummy Send BUTTON **************************************************************************
         button_dummy.setOnClickListener {
 
             for((key, value) in dummyData) {
                 db.document(DataSource.getDeviceID()).set(hashMapOf(key to value),
                     SetOptions.merge())
-                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-                    .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e) }
+                    .addOnSuccessListener { Log.d("Firebase",
+                        "DocumentSnapshot successfully written!") }
+                    .addOnFailureListener { e -> Log.w("Firebase",
+                        "Error writing document", e) }
             }
 
-            Log.i("Button","Click: button_dummy")
+            Log.i("Button","Click: Dummy Send button clicked")
         }
     }
 
-    // Turn data from the database into a Messages object that can be displayed in a conversation
-    private fun extractMessage(messageData: HashMap<*,*>, partnerId: String, ownId: String): Messages {
-        var str = "[NO MESSAGE]"
-        var sender = "[NO SENDER]"
-        var time = "[NO TIME]"
+    private fun extractMessage(messageData: HashMap<*,*>, partnerId: String): Messages {
+        var timestamp = messageData.keys.elementAt(0).toString()
+        var str = messageData.get(timestamp).toString()
+        var sender = partnerId
 
-        // timestamp is the key!
-        val timestamp = messageData.keys.elementAt(0).toString()
-        str = messageData.get(timestamp).toString()
-        sender = partnerId
-
-        var msg = Messages(
+        return Messages(
             sender = sender,
             message = str,
             timestamp = timestamp
         )
-
-        return msg
     }
 
     private fun checkAddress(): String? {
@@ -229,6 +132,78 @@ class MainActivity : AppCompatActivity() {
             var myID = UUID.randomUUID().toString()
             prefInfo?.edit()?.putString("UUID", myID)?.apply()
             return myID
+        }
+    }
+
+    private fun refreshConversations() {
+        // Refreshes conversations every 10 seconds with data from the database
+        // We can decrease the interval to see faster responses.
+        // Ex. var task = timer.scheduleAtFixedRate(1*1000L, 1 * 1000L)
+        timer.scheduleAtFixedRate(10*1000L, 10 * 1000L) {
+            var conversationChanged = false
+            var conversationList = DataSource.getConversationList()
+            var conversationMap = DataSource.getConversations()
+
+            Log.i("Conversations", "Refreshing conversations")
+            db.document(DataSource.getDeviceID()).get()
+                .addOnSuccessListener { doc ->
+                    Log.i("Database", "Got new data!")
+
+                    for((key, value) in doc.data.orEmpty()) {
+                        var allMessages = (doc.get(key) as HashMap<Any, Any>).toSortedMap(
+                            compareBy { it as Comparable<*> })
+                        var partnerId = key
+
+                        if (conversationMap.containsKey(key)) {
+                            var conversation = conversationMap[key]!!
+
+                            if (allMessages.size > conversation.size) {
+                                conversationChanged = key.equals(DataSource.getViewingConversation())
+
+                                Log.i("Database", "New messages for ${partnerId}!")
+
+                                for((timestamp, message) in allMessages) {
+                                    conversation.add(extractMessage(hashMapOf(timestamp to message),
+                                        partnerId))
+                                }
+
+                                var lastMsg = conversation[conversation.size-1]
+                                var msg = Messages(message = "[NO MESSAGE]",
+                                    sender = "[NO SENDER]",
+                                    timestamp = "[NO TIMESTAMP]")
+
+                                for (i in conversationList.indices) {
+                                    if (conversationList[i].sender == partnerId) {
+                                        msg = conversationList[i]
+                                    }
+                                }
+
+                                conversationList.remove(msg)
+                                conversationList.add(0, msg)
+                                msg.message = lastMsg.message
+                            }
+                        }
+                        else {
+                            Log.i("Database", "New conversation with ${partnerId}!");
+                            var conversation = ArrayList<Messages>()
+
+                            for((timestamp, message) in allMessages) {
+                                conversation.add(extractMessage(hashMapOf(timestamp to message),
+                                    partnerId))
+                            }
+
+                            var lastMsg = conversation[conversation.size-1]
+                            conversationList.add(0, Messages(lastMsg.message, partnerId,
+                                lastMsg.timestamp))
+
+                            conversationMap[partnerId] = conversation
+                        }
+                    }
+
+                    if (conversationChanged) {
+                        DataSource.conversationUpdated()
+                    }
+                }
         }
     }
 }
