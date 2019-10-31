@@ -5,6 +5,14 @@ The goal of this app is to provide effective but encrypted communication between
 
 The app attempts to target most Android users by attempting to keep the minimum API level as low as possible.
 
+## SDK Versions
+-  Compiled SDK Version
+  - 29
+- Minimum SDK Version
+  - 19
+- Target SDK Version
+  - 29
+
 ## Tools Used
 - Android Studio
 - Firebase Firestore
