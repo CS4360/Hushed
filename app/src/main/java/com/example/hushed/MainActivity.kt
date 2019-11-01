@@ -4,14 +4,12 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import com.example.hushed.models.Messages
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -23,26 +21,7 @@ class MainActivity : AppCompatActivity() {
         .collection("db")
     private val nicknames = FirebaseFirestore.getInstance()
         .collection("nicknames")
-
-    private val dummyMessages = listOf(
-        Messages(
-            sender = "Friend Unit 1",
-            message = "Hey there!",
-            timestamp = "01/01/01 00:00:00:00 a"
-        ), Messages(
-            sender = "Parental Unit 1",
-            message = "Please call me back",
-            timestamp = "01/01/01 00:00:00:00 a"
-        )
-    )
-
     private var timer: Timer = Timer()
-    private var dummyData = dummyMessages.map {
-        it.sender to (hashMapOf(
-            "01/01/01 00:00:00:00 AM"
-                    to it.message
-        ))
-    }.toMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,31 +64,6 @@ class MainActivity : AppCompatActivity() {
             val timestamp: String = formatter.format(date)
 
             Log.i("Time", "Current time is $timestamp")
-
-        }
-
-        button_dummy.setOnClickListener {
-
-            for ((key, value) in dummyData) {
-                db.document(DataSource.getDeviceID()).set(
-                    hashMapOf(key to value),
-                    SetOptions.merge()
-                )
-                    .addOnSuccessListener {
-                        Log.d(
-                            "Firebase",
-                            "DocumentSnapshot successfully written!"
-                        )
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w(
-                            "Firebase",
-                            "Error writing document", e
-                        )
-                    }
-            }
-
-            Log.i("Button", "Click: Dummy Send button clicked")
         }
     }
 
@@ -142,7 +96,9 @@ class MainActivity : AppCompatActivity() {
         var conversationChanged = false
         var conversationList = DataSource.getConversationList()
         var conversationMap = DataSource.getConversations()
+
         Log.i("Database", "Got new data!")
+
         var id = DataSource.getDeviceID()
 
         var updates = HashMap<String, Any>()
@@ -151,12 +107,14 @@ class MainActivity : AppCompatActivity() {
             if (!conversationMap.containsKey(key)) {
                 conversationMap[key] = ArrayList()
             }
+
             updates[key] = FieldValue.delete()
 
             var newMessages =
                 (doc.get(key) as HashMap<Any, Any>).toSortedMap(compareBy { it as Comparable<*> })
             var partnerId = key
             var conversation = conversationMap[key]!!
+
             conversationChanged = key.equals(DataSource.getViewingConversation())
 
             Log.i("Database", "New messages for ${partnerId}!")
@@ -172,7 +130,6 @@ class MainActivity : AppCompatActivity() {
 
             conversation.sortWith(Messages.comparator)
 
-
             var lastMsg = conversation[conversation.size - 1]
             var msg = Messages(
                 message = lastMsg.message,
@@ -185,12 +142,9 @@ class MainActivity : AppCompatActivity() {
                 conversationList.removeAt(i)
             }
             conversationList.add(0, msg)
-
-
         }
 
         db.document(id).update(updates)
-
         conversationList.sortWith(Messages.comparator)
 
         if (conversationChanged) {
