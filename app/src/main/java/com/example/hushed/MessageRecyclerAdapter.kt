@@ -41,6 +41,12 @@ class MessageRecyclerAdapter(val clickListener: (Messages) -> Unit) : RecyclerVi
             itemView.message_sender.text = msg.sender
             itemView.message_text.text = msg.message
             itemView.setOnClickListener{clickListener(msg)}
+
+            DataSource.nameForId(msg.sender) { name ->
+                if (name != DataSource.NO_NAME) {
+                    itemView.message_sender.text = name
+                }
+            }
         }
     }
 

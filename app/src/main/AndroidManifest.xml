@@ -3,6 +3,7 @@
     package="com.example.hushed">
 
     <application
+        android:name="com.example.hushed.HushedApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_hushed_round"
         android:label="@string/app_name"
@@ -22,6 +23,13 @@
         </activity>
         <activity
             android:name=".MessageActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

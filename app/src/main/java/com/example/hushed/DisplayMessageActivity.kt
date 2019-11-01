@@ -1,10 +1,12 @@
 package com.example.hushed
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.activity_message_chat.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -17,6 +19,7 @@ class DisplayMessageActivity : AppCompatActivity() {
     private lateinit var displayAdapter: DisplayRecyclerAdapter
 
     private var partnerId: String = ""
+    private var partnerName: String = ""
 
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
@@ -34,8 +37,9 @@ class DisplayMessageActivity : AppCompatActivity() {
         initRecyclerView()
 
         // note from jon:
-        // Get SENDER extra, describing id of who the conversation is with
-        partnerId = intent.getStringExtra(SENDER) ?: ""
+        // Get NAME extra, describing id of who the conversation is with
+        partnerId = intent.getStringExtra(ID) ?: ""
+        partnerName = intent.getStringExtra(NAME) ?: ""
         // Set the currently viewed conversation in the shared DataSource
         DataSource.setViewingConversation(partnerId)
 
@@ -43,25 +47,27 @@ class DisplayMessageActivity : AppCompatActivity() {
         // Set the name of the partner into the title bar
         // todo: map the id of the partner to their actual name
         val actionBar = supportActionBar
-        actionBar!!.title = if (partnerId.isBlank()) "[NO PARTNER]" else partnerId
+        actionBar!!.title = if (partnerName.isBlank()) "[NO PARTNER]" else partnerName
         initDataSet()
 
-        btnSend.setOnClickListener{
+        btnSend.setOnClickListener {
 
             var date = Date()
             val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS a")
             val timestamp: String = formatter.format(date)
 
             Log.i("tag", "Click: send_button Button")
-            if(txtMessage.text.isNullOrBlank()) {
-                Toast.makeText(this@DisplayMessageActivity, "Message cannot be blank", Toast.LENGTH_LONG).show()
+            if (txtMessage.text.isNullOrBlank()) {
+                Toast.makeText(
+                    this@DisplayMessageActivity,
+                    "Message cannot be blank",
+                    Toast.LENGTH_LONG
+                ).show()
                 Log.i("tag", "Blank message entered")
-            }
-            else if(partnerId.isNullOrBlank()) {
+            } else if (partnerId.isNullOrBlank()) {
                 Toast.makeText(this, "Sender cannot be blank", Toast.LENGTH_LONG).show()
                 Log.i("tag", "Blank Sender")
-            }
-            else {
+            } else {
                 // Put all logic for both updating local data and database into one method
                 sendMessage(txtMessage.text.toString(), timestamp)
             }
@@ -88,6 +94,20 @@ class DisplayMessageActivity : AppCompatActivity() {
         // add message to display
         displayAdapter.addMessage(msg, senderName, timestamp)
 
+        var convoList = DataSource.getConversationList()
+        var index = convoList.indexOfFirst { message -> message.sender == partnerId }
+        if (index >= 0) {
+            convoList.removeAt(index)
+        }
+        var msg = Messages(
+            sender = partnerId,
+            message = msg,
+            timestamp = timestamp
+        )
+        convoList.add(msg)
+        convoList.sortWith(Messages.comparator)
+
+        DataSource.saveTo(getSharedPreferences("DataSource", Context.MODE_PRIVATE))
         // scroll adapter to bottom
         messageList.scrollToPosition(displayAdapter.itemCount - 1)
 
@@ -95,10 +115,13 @@ class DisplayMessageActivity : AppCompatActivity() {
         //document(parnerID -> username -> UUID of person we want to connect to)
         //right now partnerId is the just the string of the person we want to connect to
         db.document(partnerId)
-            .set(hashMapOf(DataSource.getDeviceID() to hashMapOf(timestamp to txtMessage.text.toString())),
-                SetOptions.merge())
+            .set(
+                hashMapOf(DataSource.getDeviceID() to hashMapOf(timestamp to txtMessage.text.toString())),
+                SetOptions.merge()
+            )
             .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-            .addOnFailureListener { e -> Log.w("Firebase", "Error writing document", e)
+            .addOnFailureListener { e ->
+                Log.w("Firebase", "Error writing document", e)
             }
 
 
@@ -107,8 +130,11 @@ class DisplayMessageActivity : AppCompatActivity() {
     // note from jon: Added this method to initialize the data set in the recycler view
     // We will grab the conversation that was set by
     private fun initDataSet() {
-
-        var convo = DataSource.getConversations()[partnerId] ?: ArrayList()
+        var conversations = DataSource.getConversations()
+        var convo = conversations[partnerId] ?: ArrayList()
+        if (!conversations.containsKey(partnerId)) {
+            conversations[partnerId] = convo
+        }
         Log.i("messages", "Conversation with " + partnerId + " has " + convo.size + " Mesasges.")
 
         // send the list to the display adapter
