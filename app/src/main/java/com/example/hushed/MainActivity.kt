@@ -163,8 +163,8 @@ class MainActivity : AppCompatActivity() {
             for ((timestamp, message) in newMessages) {
                 conversation.add(
                     Messages(
-                        timestamp = partnerId,
-                        sender = timestamp as String,
+                        timestamp = timestamp as String,
+                        sender = partnerId,
                         message = message as String
                     )
                 )
