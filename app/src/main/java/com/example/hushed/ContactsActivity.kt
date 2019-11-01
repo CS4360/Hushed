@@ -2,12 +2,16 @@ package com.example.hushed
 
 import android.content.Intent
 import android.os.Bundle
+import android.service.autofill.Dataset
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_contacts.*
 
 class ContactsActivity : AppCompatActivity() {
+    private val nicknames = FirebaseFirestore.getInstance()
+        .collection("nicknames")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,19 +22,30 @@ class ContactsActivity : AppCompatActivity() {
 
         enter_button.setOnClickListener {
             Log.i("tag", "Click: enter_button Button")
-            if(enter_contact.text.isNullOrBlank()) {
+            if (enter_contact.text.isNullOrBlank()) {
                 Toast.makeText(this, "Contact cannot be blank", Toast.LENGTH_LONG).show()
                 Log.i("tag", "Blank message entered")
-            }
-            else {
-                setContact(enter_contact.text.toString())
+            } else {
+                checkForContact(enter_contact.text.toString())
             }
         }
     }
 
-    private fun setContact(contact: String) {
+    private fun checkForContact(contact: String) {
+        DataSource.idForName(contact) {id ->
+            if (id != DataSource.NO_ID) {
+                setContact(id, contact)
+            } else {
+                // Todo: Show user that nobody has that name.
+            }
+        }
+        
+    }
+
+    private fun setContact(id: String, name: String) {
         val intent = Intent(this, DisplayMessageActivity::class.java)
-        intent.putExtra(SENDER, contact)
+        intent.putExtra(ID, id)
+        intent.putExtra(NAME, name)
         startActivity(intent)
     }
 }

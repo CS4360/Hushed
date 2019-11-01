@@ -6,6 +6,7 @@ package com.example.hushed
 import android.content.SharedPreferences
 import android.util.Log
 import com.example.hushed.models.Messages
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -13,6 +14,11 @@ import kotlin.collections.ArrayList
 
 class DataSource {
     companion object {
+
+        private val nicknames = FirebaseFirestore.getInstance()
+            .collection("nicknames")
+
+
         // to hold the last message of various users, displayed when selecting a conversation.
         private var conversationList = ArrayList<Messages>()
 
@@ -78,6 +84,40 @@ class DataSource {
         fun setDeviceID(address: String) {
             deviceID = address
         }
+
+        const val NO_ID = "[NO_ID]"
+        fun idForName(name: String, callback: (String) -> Unit) {
+            nicknames.document(name)
+                .get()
+                .addOnSuccessListener { doc ->
+
+                    if (doc.data.orEmpty().isNotEmpty()) {
+                        var id = doc.data!!["id"]
+                        if (id is String) {
+                            callback(id)
+                        } else {
+                            callback(NO_ID)
+                        }
+                    } else {
+                        callback(NO_ID)
+                    }
+                }
+        }
+
+        const val NO_NAME = "[NO_NAME]"
+        fun nameForId(id: String, callback: (String) -> Unit) {
+            nicknames.whereEqualTo("id", id)
+                .get()
+                .addOnSuccessListener { query ->
+                    if (!query.isEmpty) {
+                        // id of document is nickname of user
+                        callback(query.documents[0].id)
+                    } else {
+                        callback(NO_NAME)
+                    }
+                }
+        }
+
 
         fun saveTo(prefs: SharedPreferences) {
             var map = JsonObject()
