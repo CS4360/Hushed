@@ -42,11 +42,11 @@
 
     <Button
         android:id="@+id/remove_button"
+        android:background="@drawable/ic_close_black_24dp"
         android:layout_width="33dp"
-        android:layout_height="37dp"
+        android:layout_height="33dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="14dp"
-        android:text="Button" />
+        android:layout_marginEnd="14dp" />
 
 </RelativeLayout>
