@@ -40,4 +40,13 @@
         android:layout_centerVertical="true"
         />
 
+    <Button
+        android:id="@+id/remove_button"
+        android:layout_width="33dp"
+        android:layout_height="37dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="14dp"
+        android:text="Button" />
+
 </RelativeLayout>

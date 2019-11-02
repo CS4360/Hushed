@@ -1,5 +1,6 @@
 package com.example.hushed
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,7 @@ import kotlinx.android.synthetic.main.recycler_messages.view.*
 // Naming things is hard, but that better describes what this adapter is for
 class MessageRecyclerAdapter(val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
-    private var messages: List<Messages> = ArrayList()
+    private var messages: MutableList<Messages> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MessageViewHolder(
@@ -31,16 +32,37 @@ class MessageRecyclerAdapter(val clickListener: (Messages) -> Unit) : RecyclerVi
         return messages.size
     }
 
-    fun submitList(msg: List<Messages>) {
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
+    fun removeItem(position: Int) {
+        messages.removeAt(position)
+        notifyDataSetChanged()
+    }
+
+    fun submitList(msg: MutableList<Messages>) {
         messages = msg
     }
 
-    class MessageViewHolder (itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class MessageViewHolder (itemView: View, removeButton: View = itemView.findViewById(R.id.remove_button)): RecyclerView.ViewHolder(itemView) {
 
+        init {
+            // as a button
+            removeButton.setOnClickListener{
+                Log.i("Button", "Delete Button Long Held")
+                removeItem(layoutPosition)
+            }
+        }
         fun bind(msg: Messages, clickListener: (Messages) -> Unit) {
             itemView.message_sender.text = msg.sender
             itemView.message_text.text = msg.message
             itemView.setOnClickListener{clickListener(msg)}
+            // just holding down on the message view
+            itemView.setOnLongClickListener {
+                removeItem(layoutPosition)
+                true
+            }
 
             DataSource.nameForId(msg.sender) { name ->
                 if (name != DataSource.NO_NAME) {
