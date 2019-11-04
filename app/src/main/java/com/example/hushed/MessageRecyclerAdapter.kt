@@ -1,17 +1,22 @@
 package com.example.hushed
 
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.recycler_messages.view.*
 
 // Suggestion from jon: Rename this type "ConversationSelectRecyclerAdapter"
 // Naming things is hard, but that better describes what this adapter is for
-class MessageRecyclerAdapter(val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class MessageRecyclerAdapter(val context: Context, val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
-    private var messages: List<Messages> = ArrayList()
+    private var messages: MutableList<Messages> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MessageViewHolder(
@@ -31,16 +36,65 @@ class MessageRecyclerAdapter(val clickListener: (Messages) -> Unit) : RecyclerVi
         return messages.size
     }
 
-    fun submitList(msg: List<Messages>) {
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
+    fun removeItem(position: Int) {
+        messages.removeAt(position)
+        notifyDataSetChanged()
+    }
+
+    fun submitList(msg: MutableList<Messages>) {
         messages = msg
     }
 
-    class MessageViewHolder (itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class MessageViewHolder (itemView: View, removeButton: View = itemView.findViewById(R.id.remove_button)): RecyclerView.ViewHolder(itemView) {
 
+        init {
+            // as a button
+            removeButton.setOnClickListener{
+                val builder = AlertDialog.Builder(context)
+
+                builder.setTitle("Delete Conversation")
+                builder.setMessage("Are you sure you want to delete conversation?")
+                builder.setPositiveButton("YES") { _, _ ->
+                    removeItem(layoutPosition)
+                    Toast.makeText(context, "Conversation deleted!",Toast.LENGTH_LONG).show()
+                }
+
+                builder.setNegativeButton("No"){
+                        _, _ ->
+                    Toast.makeText(context, "Conversation not deleted",Toast.LENGTH_LONG).show()
+                }
+                val dialog: AlertDialog = builder.create()
+                dialog.show()
+            }
+        }
         fun bind(msg: Messages, clickListener: (Messages) -> Unit) {
             itemView.message_sender.text = msg.sender
             itemView.message_text.text = msg.message
             itemView.setOnClickListener{clickListener(msg)}
+            // just holding down on the message view
+            itemView.setOnLongClickListener {
+
+                val builder = AlertDialog.Builder(context)
+
+                builder.setTitle("Delete Conversation")
+                builder.setMessage("Are you sure you want to delete conversation?")
+                builder.setPositiveButton("YES") { _, _ ->
+                    removeItem(layoutPosition)
+                    Toast.makeText(context, "Conversation deleted!",Toast.LENGTH_LONG).show()
+                }
+
+                builder.setNegativeButton("No"){
+                    _, _ ->
+                    Toast.makeText(context, "Conversation not deleted",Toast.LENGTH_LONG).show()
+                }
+                val dialog: AlertDialog = builder.create()
+                dialog.show()
+                true
+            }
 
             DataSource.nameForId(msg.sender) { name ->
                 if (name != DataSource.NO_NAME) {

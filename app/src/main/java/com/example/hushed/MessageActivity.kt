@@ -41,7 +41,7 @@ class MessageActivity : AppCompatActivity() {
     private fun initRecyclerView() {
         recyclerViewHome.apply {
             layoutManager = LinearLayoutManager(this@MessageActivity)
-            messageAdapter = MessageRecyclerAdapter { message: Messages -> messageClicked(message) }
+            messageAdapter = MessageRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
             adapter = messageAdapter
         }
     }
