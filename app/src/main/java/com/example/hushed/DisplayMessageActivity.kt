@@ -149,7 +149,7 @@ class DisplayMessageActivity : AppCompatActivity() {
                 stackFromEnd = true
             }
             // Set 'this' DisplayMessageActivity's displayAdapter
-            displayAdapter = DisplayRecyclerAdapter()
+            displayAdapter = DisplayRecyclerAdapter(context)
             // Set the 'messageList''s adapter
             adapter = displayAdapter
         }

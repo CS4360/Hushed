@@ -175,13 +175,15 @@ class DataSource {
 
                     convo.sortWith(Messages.comparator)
 
-                    var lastMessage = convo[convo.size - 1]
-                    var msg = Messages(
-                        timestamp = lastMessage.timestamp,
-                        message = lastMessage.message,
-                        sender = key
-                    )
-                    conversationList.add(msg)
+                    if(convo.size > 0) {
+                        var lastMessage = convo[convo.size - 1]
+                        var msg = Messages(
+                            timestamp = lastMessage.timestamp,
+                            message = lastMessage.message,
+                            sender = key
+                        )
+                        conversationList.add(msg)
+                    }
                 }
                 conversationList.sortWith(Messages.comparator)
             }

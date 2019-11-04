@@ -1,16 +1,24 @@
 package com.example.hushed
 
+import android.app.AlertDialog
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hushed.models.Messages
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
-class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class DisplayRecyclerAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var messages: MutableList<Messages> = ArrayList()
+    private var date = Date()
+    private val formatter = SimpleDateFormat("MM/dd/yy HH:mm a")
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MessageViewHolder(
@@ -51,12 +59,17 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyDataSetChanged()
     }
 
+    fun removeItem(position: Int) {
+        messages.removeAt(position)
+        notifyDataSetChanged()
+    }
+
     // Note from jon:
     // I combined the two previous viewholders together, similarly to combining their layouts.
     // Since we don't know ahead of time what messages are sent or received,
     // and the viewholder will get reused to display potentially to display the other kind of message
     // it is way easier to allow for both messages, and enable/disable internal views as needed
-    class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         // Cache references to child views on construction:
         private val receivedMessage: TextView = itemView.findViewById(R.id.txtOtherMessage)
         private val receivedMessageTime: TextView = itemView.findViewById(R.id.txtOtherMessageTime)
@@ -64,7 +77,28 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private val sentMessageTime: TextView = itemView.findViewById(R.id.txtMyMessageTime)
 
         fun bind(msg: Messages) {
+
             var ownId = DataSource.getDeviceID()
+
+            itemView.setOnLongClickListener {
+
+                val builder = AlertDialog.Builder(context)
+
+                builder.setTitle("Delete Message")
+                builder.setMessage("Are you sure you want to delete message?")
+                builder.setPositiveButton("YES") { _, _ ->
+                    removeItem(layoutPosition)
+                    Toast.makeText(context, "Message deleted!", Toast.LENGTH_LONG).show()
+                }
+
+                builder.setNegativeButton("No"){
+                        _, _ ->
+                    Toast.makeText(context, "Message not deleted", Toast.LENGTH_LONG).show()
+                }
+                val dialog: AlertDialog = builder.create()
+                dialog.show()
+                true
+            }
 
             // figure out if we are displaying a sent or received message by the id of the sender
             if (msg.sender.equals(ownId)) {
@@ -72,7 +106,7 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 // if we are displaying a 'sent' message, make sure we show only 'sent' features.
                 sentMessage.text = msg.message
                 sentMessage.visibility = View.VISIBLE
-                sentMessageTime.text = msg.timestamp
+                sentMessageTime.text = formatter.format(date)
                 sentMessageTime.visibility = View.VISIBLE
                 // hide all received views
                 receivedMessage.text = ""
@@ -85,7 +119,7 @@ class DisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 // if we are displaying a 'received' message, make sure we show only 'received' features.
                 receivedMessage.text = msg.message
                 receivedMessage.visibility = View.VISIBLE
-                receivedMessageTime.text = msg.timestamp
+                receivedMessageTime.text = formatter.format(date)
                 receivedMessageTime.visibility = View.VISIBLE
                 // hide all 'sent' views
                 sentMessage.text = ""
