@@ -36,7 +36,8 @@ class ContactsActivity : AppCompatActivity() {
             if (id != DataSource.NO_ID) {
                 setContact(id, contact)
             } else {
-                // Todo: Show user that nobody has that name.
+                Toast.makeText(this, "User does not exist", Toast.LENGTH_LONG).show()
+
             }
         }
         

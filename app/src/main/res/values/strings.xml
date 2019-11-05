@@ -11,5 +11,6 @@
     <string name="button_enter">Enter</string>
     <string name="button_newContact">+</string>
     <string name="prompt_enterContact">Enter Contact</string>
-    <string name="prompt_enterMesssage">Enter message</string>
+    <string name="prompt_enterMesssage">Enter Message</string>
+    <string name="prompt_enterNickname">Enter Nickname</string>
 </resources>
