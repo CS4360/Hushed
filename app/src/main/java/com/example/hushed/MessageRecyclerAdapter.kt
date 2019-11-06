@@ -49,28 +49,8 @@ class MessageRecyclerAdapter(val context: Context, val clickListener: (Messages)
         messages = msg
     }
 
-    inner class MessageViewHolder (itemView: View, removeButton: View = itemView.findViewById(R.id.remove_button)): RecyclerView.ViewHolder(itemView) {
+    inner class MessageViewHolder (itemView: View): RecyclerView.ViewHolder(itemView) {
 
-        init {
-            // as a button
-            removeButton.setOnClickListener{
-                val builder = AlertDialog.Builder(context)
-
-                builder.setTitle("Delete Conversation")
-                builder.setMessage("Are you sure you want to delete conversation?")
-                builder.setPositiveButton("YES") { _, _ ->
-                    removeItem(layoutPosition)
-                    Toast.makeText(context, "Conversation deleted!",Toast.LENGTH_LONG).show()
-                }
-
-                builder.setNegativeButton("No"){
-                        _, _ ->
-                    Toast.makeText(context, "Conversation not deleted",Toast.LENGTH_LONG).show()
-                }
-                val dialog: AlertDialog = builder.create()
-                dialog.show()
-            }
-        }
         fun bind(msg: Messages, clickListener: (Messages) -> Unit) {
             itemView.message_sender.text = msg.sender
             itemView.message_text.text = msg.message
