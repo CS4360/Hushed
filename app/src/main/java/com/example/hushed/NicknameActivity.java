@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -20,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class SettingsActivity extends AppCompatActivity {
+public class NicknameActivity extends AppCompatActivity {
     private CollectionReference nicknames = FirebaseFirestore.getInstance()
             .collection("nicknames");
 
@@ -32,7 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.settings);
+        setContentView(R.layout.activity_nickname);
 
         nicknameButton = findViewById(R.id.nicknameButton);
         nicknameMessage = findViewById(R.id.nicknameMessage);

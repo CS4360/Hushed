@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         button_settings.setOnClickListener {
             Log.i("Button", "Click: Settings button clicked")
-            var intent = Intent(this, SettingsActivity::class.java)
+            var intent = Intent(this, NicknameActivity::class.java)
             startActivity(intent)
         }
 

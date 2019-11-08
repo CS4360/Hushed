@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.recycler_messages.view.*
 
 // Suggestion from jon: Rename this type "ConversationSelectRecyclerAdapter"
 // Naming things is hard, but that better describes what this adapter is for
-class MessageRecyclerAdapter(val context: Context, val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class ConversationSelectRecyclerAdapter(val context: Context, val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     private var messages: MutableList<Messages> = ArrayList()
 

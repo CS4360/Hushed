@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 
 public class SplashActivity extends Activity {
     private Handler mWaitHandler = new Handler();
@@ -18,6 +19,7 @@ public class SplashActivity extends Activity {
 
         if (settings.getBoolean("my_first_time", true)) {
 
+            Log.i("tag","Splash Activity Entered");
             setContentView(R.layout.activity_splash);
 
             mWaitHandler.postDelayed(new Runnable() {
@@ -28,6 +30,7 @@ public class SplashActivity extends Activity {
                     //The following code will execute after the 3 seconds.
 
                     try {
+                        Log.i("tag","Nickname Activity Entered");
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                         finish();
@@ -40,11 +43,11 @@ public class SplashActivity extends Activity {
             settings.edit().putBoolean("my_first_time", false).commit();
         }
 
-        // https://stackoverflow.com/questions/4636141/determine-if-android-app-is-the-first-time-used
-
         else {
+            Log.i("tag","Splash Activity Skipped - MessageActivity Entered");
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
+
         }
     }
 
@@ -56,3 +59,5 @@ public class SplashActivity extends Activity {
         mWaitHandler.removeCallbacksAndMessages(null);
     }
 }
+
+// https://stackoverflow.com/questions/4636141/determine-if-android-app-is-the-first-time-used

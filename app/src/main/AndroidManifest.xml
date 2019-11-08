@@ -29,7 +29,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".NicknameActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -37,7 +37,8 @@
         </activity>
 
         <activity android:name=".ContactsActivity"
-            android:parentActivityName=".MessageActivity">
+            android:parentActivityName=".MessageActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MessageActivity"/>
@@ -50,7 +51,6 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
