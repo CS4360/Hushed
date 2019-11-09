@@ -201,7 +201,8 @@ class DataSource {
         fun deleteMessagesFrom(prefs: SharedPreferences, id: String, message: String) {
             val json = prefs.getString("conversations", "{}")
             var map = JsonParser().parse(json) as JsonObject
-            var count = 0
+            Log.i("forLoop", "map before: $map")
+            var count = -1
             Log.i("forLoop", "msg.sender -> id- > $id")
             Log.i("forLoop", "msg.message -> message- > $message")
 
@@ -223,6 +224,8 @@ class DataSource {
                                     Log.i("forLoop", "it contains? message: $message")
                                     Log.i("forLoop", "count: $count")
                                     value.remove(count)
+
+                                    break
 //                                    msg.remove("message")
 //                                    msg.remove("sender")
 //                                    msg.remove("timestamp")
@@ -239,7 +242,9 @@ class DataSource {
                 Log.i("forLoop", "value after remove: $value")
 
             }
-            Log.i("forLoop", "map: $map")
+            // reset count after every delete
+//            count = -1
+            Log.i("forLoop", "map after: $map")
             prefs.edit()?.putString("conversations", map.toString())?.apply()
 
         }
