@@ -14,7 +14,6 @@ import kotlin.collections.ArrayList
 
 class DataSource {
     companion object {
-
         private val nicknames = FirebaseFirestore.getInstance()
             .collection("nicknames")
 
@@ -41,7 +40,7 @@ class DataSource {
         }
 
         fun setViewingConversation(id: String) {
-            viewingConversation = id;
+            viewingConversation = id
         }
 
         // register callback for when conversations have updated
@@ -175,7 +174,7 @@ class DataSource {
 
                     convo.sortWith(Messages.comparator)
 
-                    if(convo.size > 0) {
+                    if (convo.size > 0) {
                         var lastMessage = convo[convo.size - 1]
                         var msg = Messages(
                             timestamp = lastMessage.timestamp,
@@ -187,9 +186,18 @@ class DataSource {
                 }
                 conversationList.sortWith(Messages.comparator)
             }
-
-
         }
 
+        fun saveKeys(prefs: SharedPreferences, privKey: String, pubKey: String) {
+            prefs.edit()?.putString("publicKey", pubKey)?.apply()
+            prefs.edit()?.putString("privateKey", privKey)?.apply()
+        }
+
+        fun getPrivateKey(prefs: SharedPreferences): String {
+            return prefs.getString("privateKey", "NO_KEY").toString()
+        }
+
+        fun getPublicKey(prefs: SharedPreferences): String {
+            return prefs.getString("publicKey", "NO_KEY").toString()}
     }
 }

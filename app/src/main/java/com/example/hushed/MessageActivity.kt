@@ -1,5 +1,6 @@
 package com.example.hushed
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -15,8 +16,6 @@ const val NAME = "com.example.hushed.NAME"
 // Suggestion from jon: Rename this type "ConversationSelectActivity"
 // Naming things is hard, but that better describes what this activity is for
 class MessageActivity : AppCompatActivity() {
-    private val nicknames = FirebaseFirestore.getInstance()
-        .collection("nicknames")
     private lateinit var messageAdapter: MessageRecyclerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +40,7 @@ class MessageActivity : AppCompatActivity() {
     private fun initRecyclerView() {
         recyclerViewHome.apply {
             layoutManager = LinearLayoutManager(this@MessageActivity)
-            messageAdapter = MessageRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
+            messageAdapter = MessageRecyclerAdapter(context) {message: Messages -> messageClicked(message) }
             adapter = messageAdapter
         }
     }

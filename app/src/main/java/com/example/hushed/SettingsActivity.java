@@ -1,5 +1,6 @@
 package com.example.hushed;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -62,6 +62,7 @@ public class SettingsActivity extends AppCompatActivity {
     private void onNicknamesLoaded(DocumentSnapshot doc) {
         String requestedName = nickname.getText().toString();
         String id = DataSource.Companion.getDeviceID();
+        String publicKey = DataSource.Companion.getPublicKey(getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE));
 
         nicknames.whereEqualTo("id", id)
                 .get()
@@ -74,6 +75,7 @@ public class SettingsActivity extends AppCompatActivity {
                     if (data == null || data.size() == 0) {
                         Map<String, Object> setData = new HashMap<>();
                         setData.put("id", id);
+                        setData.put("publicKey", publicKey);
 
                         if (oldName != null) {
                             nicknames.document(oldName).delete();
@@ -93,22 +95,23 @@ public class SettingsActivity extends AppCompatActivity {
                                     nicknameButton.setEnabled(true);
                                     nicknameMessage.setText("Sorry, you didn't get " + requestedName + "!");
                                 });
-                    } else {
+                    }
+                    else {
                         String otherId = (String) data.get("id");
+
                         if (otherId.equals(id)) {
                             nicknameMessage.setText("You already have that nickname!");
                             nickname.setEnabled(true);
                             nicknameButton.setEnabled(true);
                             nicknameProgress.setVisibility(View.GONE);
-                        } else {
+                        }
+                        else {
                             nicknameMessage.setText("Someone else already has that name!");
                             nickname.setEnabled(true);
                             nicknameButton.setEnabled(true);
                             nicknameProgress.setVisibility(View.GONE);
                         }
-
                     }
-
                 });
     }
 }
