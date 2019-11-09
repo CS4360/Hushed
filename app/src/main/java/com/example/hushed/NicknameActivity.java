@@ -46,21 +46,27 @@ public class NicknameActivity extends AppCompatActivity {
     }
 
     private void onNicknameButtonClicked(View clickedView) {
-        nicknameButton.setEnabled(false);
-        nickname.setEnabled(false);
-        nicknameProgress.setVisibility(View.VISIBLE);
-        nicknameMessage.setText("Loading nicknames...");
         String requestedNickname = nickname.getText().toString();
 
-        nicknames.document(requestedNickname)
-                .get()
-                .addOnSuccessListener((doc) -> {
-                    onNicknamesLoaded(doc);
-                    startConversationsActivity();
-                })
-                .addOnFailureListener((err) -> {
-                    Log.e("Test", "Failed to get " + requestedNickname + ": " + err);
-                });
+        if(requestedNickname.isEmpty() || requestedNickname == null) {
+            nicknameMessage.setText("Please provide a nickname");
+        }
+        else {
+            nicknameButton.setEnabled(false);
+            nickname.setEnabled(false);
+            nicknameProgress.setVisibility(View.VISIBLE);
+            nicknameMessage.setText("Loading nicknames...");
+
+            nicknames.document(requestedNickname)
+                    .get()
+                    .addOnSuccessListener((doc) -> {
+                        onNicknamesLoaded(doc);
+                        startConversationsActivity();
+                    })
+                    .addOnFailureListener((err) -> {
+                        Log.e("Test", "Failed to get " + requestedNickname + ": " + err);
+                    });
+        }
     }
 
     private void onNicknamesLoaded(DocumentSnapshot doc) {
