@@ -1,6 +1,8 @@
 package com.example.hushed;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -27,6 +29,7 @@ public class NicknameActivity extends AppCompatActivity {
     private Button nicknameButton;
     private ProgressBar nicknameProgress;
     private EditText nickname;
+    private Handler mWaitHandler = new Handler();
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,8 +42,6 @@ public class NicknameActivity extends AppCompatActivity {
         nickname = findViewById(R.id.nickname);
 
         nicknameButton.setOnClickListener(this::onNicknameButtonClicked);
-
-
     }
 
     private void onNicknameButtonClicked(View clickedView) {
@@ -52,7 +53,10 @@ public class NicknameActivity extends AppCompatActivity {
 
         nicknames.document(requestedNickname)
                 .get()
-                .addOnSuccessListener(this::onNicknamesLoaded)
+                .addOnSuccessListener((doc) -> {
+                    onNicknamesLoaded(doc);
+                    startConversationsActivity();
+                })
                 .addOnFailureListener((err) -> {
                     Log.e("Test", "Failed to get " + requestedNickname + ": " + err);
                 });
@@ -109,5 +113,22 @@ public class NicknameActivity extends AppCompatActivity {
                     }
 
                 });
+    }
+
+    private void startConversationsActivity() {
+        mWaitHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.i("Activity","Entering Conversations Activity");
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }, 2000);
     }
 }
