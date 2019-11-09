@@ -1,7 +1,6 @@
 package com.example.hushed.crypto;
 
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 import org.whispersystems.curve25519.java.curve_sigs;
 import org.whispersystems.curve25519.java.scalarmult;
@@ -45,7 +44,7 @@ public class Keygen {
     public static byte[] stringToBytes(String key) {
         String[] keyString = key.split(",");
         byte[] keyByte = new byte[keyString.length];
-        int working = 0;
+        int working;
 
         for(int i = 0; i < keyString.length; i++) {
             working = Integer.parseInt(keyString[i]);
