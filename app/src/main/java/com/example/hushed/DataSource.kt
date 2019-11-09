@@ -198,6 +198,52 @@ class DataSource {
             conversations.remove(id)
         }
 
+        fun deleteMessagesFrom(prefs: SharedPreferences, id: String, message: String) {
+            val json = prefs.getString("conversations", "{}")
+            var map = JsonParser().parse(json) as JsonObject
+            var count = 0
+            Log.i("forLoop", "msg.sender -> id- > $id")
+            Log.i("forLoop", "msg.message -> message- > $message")
+
+            for ((key, value) in map.entrySet()) {
+                Log.i("forLoop", "key: $key")
+                Log.i("forLoop", "value: $value")
+                if(value is JsonArray) {
+                    for (i in 0 until value.size()) {
+                        val msg = value.get(i)
+                        Log.i("forLoop", "msg: $msg")
+                        if(msg is JsonObject) {
+                            var sender = msg.get("sender").toString()
+                            var singleMsg = msg.get("message").toString()
+                            count ++
+                            Log.i("forLoop", "sender: $sender")
+                            Log.i("forLoop", "singleMsg: $singleMsg")
+                            if(sender.contains(id)) {
+                                if(singleMsg.contains(message)) {
+                                    Log.i("forLoop", "it contains? message: $message")
+                                    Log.i("forLoop", "count: $count")
+                                    value.remove(count)
+//                                    msg.remove("message")
+//                                    msg.remove("sender")
+//                                    msg.remove("timestamp")
+                                }
+                                else {
+                                    Log.i("forLoop", "singleMsg does not contain message we want to delete")
+                                    Log.i("forLoop", "count: $count")
+                                }
+                            }
+                        }
+//                        Log.i("forLoop", "msg after remove: $msg")
+                    }
+                }
+                Log.i("forLoop", "value after remove: $value")
+
+            }
+            Log.i("forLoop", "map: $map")
+            prefs.edit()?.putString("conversations", map.toString())?.apply()
+
+        }
+
         fun saveKeys(prefs: SharedPreferences, privKey: String, pubKey: String) {
             prefs.edit()?.putString("publicKey", pubKey)?.apply()
             prefs.edit()?.putString("privateKey", privKey)?.apply()
