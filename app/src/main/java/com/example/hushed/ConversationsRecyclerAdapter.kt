@@ -2,8 +2,6 @@ package com.example.hushed
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,12 +56,14 @@ class ConversationsRecyclerAdapter(val context: Context, val clickListener: (Mes
             // just holding down on the message view
             itemView.setOnLongClickListener {
 
+                val preferences = context.getSharedPreferences("DataSource", Context.MODE_PRIVATE)
                 val builder = AlertDialog.Builder(context)
 
                 builder.setTitle("Delete Conversation")
                 builder.setMessage("Are you sure you want to delete conversation?")
                 builder.setPositiveButton("YES") { _, _ ->
                     removeItem(layoutPosition)
+                    DataSource.deleteConversationsFrom(preferences, msg.sender)
                     Toast.makeText(context, "Conversation deleted!",Toast.LENGTH_LONG).show()
                 }
 

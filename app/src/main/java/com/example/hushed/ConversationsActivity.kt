@@ -6,15 +6,12 @@ import android.os.Bundle
 import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hushed.models.Messages
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_home_messages.*
 
 const val ID = "com.example.hushed.ID"
 const val NAME = "com.example.hushed.NAME"
 
 class MessageActivity : AppCompatActivity() {
-    private val nicknames = FirebaseFirestore.getInstance()
-        .collection("nicknames")
     private lateinit var messageAdapter: ConversationsRecyclerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {

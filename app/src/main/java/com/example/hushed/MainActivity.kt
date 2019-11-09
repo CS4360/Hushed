@@ -19,8 +19,6 @@ import kotlin.concurrent.scheduleAtFixedRate
 class MainActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
-    private val nicknames = FirebaseFirestore.getInstance()
-        .collection("nicknames")
     private var timer: Timer = Timer()
 
     override fun onCreate(savedInstanceState: Bundle?) {

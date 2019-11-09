@@ -1,11 +1,14 @@
 package com.example.hushed;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.example.hushed.crypto.Keygen;
 
 public class SplashActivity extends Activity {
     private Handler mWaitHandler = new Handler();
@@ -17,19 +20,28 @@ public class SplashActivity extends Activity {
 
         if (prefFile.getBoolean("First_Time", true)) {
             Log.i("Activity","Entering Splash Activity");
+
             setContentView(R.layout.activity_splash);
 
             mWaitHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     try {
+                        byte[] privateKey = Keygen.generatePrivateKey();
+                        byte[] publicKey = Keygen.generatePublicKey(privateKey);
+
+                        String privKey = Keygen.byteToString(privateKey);
+                        String pubKey = Keygen.byteToString(publicKey);
+
+                        DataSource.Companion.saveKeys(getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE), privKey, pubKey);
+
                         Log.i("Activity","Entering Nickname Activity");
                         Intent intent = new Intent(getApplicationContext(), NicknameActivity.class);
                         startActivity(intent);
                         finish();
                     }
-                    catch (Exception ex) {
-                        ex.printStackTrace();
+                    catch (Exception ignored) {
+                        ignored.printStackTrace();
                     }
                 }
             }, 3000);
@@ -46,7 +58,6 @@ public class SplashActivity extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         mWaitHandler.removeCallbacksAndMessages(null);
     }
 }
