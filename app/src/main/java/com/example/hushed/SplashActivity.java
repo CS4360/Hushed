@@ -44,7 +44,7 @@ public class SplashActivity extends Activity {
                 }
             }, 3000);
 
-            settings.edit().putBoolean("my_first_time", false).commit();
+            settings.edit().putBoolean("my_first_time", false).apply();
         }
         else {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
