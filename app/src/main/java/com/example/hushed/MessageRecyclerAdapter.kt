@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.util.Log
+import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,12 +59,16 @@ class MessageRecyclerAdapter(val context: Context, val clickListener: (Messages)
             // just holding down on the message view
             itemView.setOnLongClickListener {
 
+                val preferences = context.getSharedPreferences("DataSource", Context.MODE_PRIVATE)
                 val builder = AlertDialog.Builder(context)
 
                 builder.setTitle("Delete Conversation")
                 builder.setMessage("Are you sure you want to delete conversation?")
                 builder.setPositiveButton("YES") { _, _ ->
                     removeItem(layoutPosition)
+                    DataSource.deleteFrom(preferences)
+                    // After you delete save to preferences, do we need to load as well? loading as well?
+
                     Toast.makeText(context, "Conversation deleted!",Toast.LENGTH_LONG).show()
                 }
 

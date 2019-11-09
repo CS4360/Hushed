@@ -5,6 +5,7 @@ package com.example.hushed
 
 import android.content.SharedPreferences
 import android.util.Log
+import android.widget.Toast
 import com.example.hushed.models.Messages
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.JsonArray
@@ -138,15 +139,15 @@ class DataSource {
                 }
                 map.add(key, convo)
             }
-
+            Log.i("JSON", "conversations$map")
             prefs.edit()?.putString("conversations", map.toString())?.apply()
             Log.i("Test", "Saved")
         }
 
         fun loadFrom(prefs: SharedPreferences) {
             var json = prefs.getString("conversations", "{}")
-
             var map = JsonParser().parse(json) as JsonObject
+            Log.i("JSON", "loadFrom $map")
 
             Log.i("Test", "Loaded " + map.size() + " Conversations")
 
@@ -188,6 +189,25 @@ class DataSource {
                 conversationList.sortWith(Messages.comparator)
             }
 
+
+        }
+
+        fun deleteFrom(prefs: SharedPreferences) {
+            val json = prefs.getString("conversations", "{}")
+            var map = JsonParser().parse(json) as JsonObject
+
+
+            var contains = prefs.all
+            Log.i("deleteFrom", "contains before: $contains")
+            Log.i("deleteFrom", "conversation size before: " + conversations.size)
+
+            map.remove("0964a5c6-b313-49fd-ab30-4a191a239661")
+            prefs.edit()?.putString("conversations", map.toString())?.apply()
+            conversations.remove("0964a5c6-b313-49fd-ab30-4a191a239661")
+
+            contains = prefs.all
+            Log.i("deleteFrom", "contains after: $contains")
+            Log.i("deleteFrom", "conversation size after: " + conversations.size)
 
         }
 
