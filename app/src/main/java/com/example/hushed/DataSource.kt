@@ -5,6 +5,7 @@ package com.example.hushed
 
 import android.content.SharedPreferences
 import android.util.Log
+import android.widget.Toast
 import com.example.hushed.models.Messages
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.JsonArray
@@ -142,9 +143,8 @@ class DataSource {
         }
 
         fun loadFrom(prefs: SharedPreferences) {
-            val json = prefs.getString("conversations", "{}")
-
-            val map = JsonParser().parse(json) as JsonObject
+            var json = prefs.getString("conversations", "{}")
+            var map = JsonParser().parse(json) as JsonObject
 
             Log.i("Test", "Loaded " + map.size() + " Conversations")
 
@@ -187,16 +187,28 @@ class DataSource {
             }
         }
 
+
+        fun deleteConversationsFrom(prefs: SharedPreferences, id: String) {
+            val json = prefs.getString("conversations", "{}")
+            var map = JsonParser().parse(json) as JsonObject
+
+            // remove both from preferences and conversations
+            map.remove(id)
+            prefs.edit()?.putString("conversations", map.toString())?.apply()
+            conversations.remove(id)
+        }
+
         fun saveKeys(prefs: SharedPreferences, privKey: String, pubKey: String) {
             prefs.edit()?.putString("publicKey", pubKey)?.apply()
             prefs.edit()?.putString("privateKey", privKey)?.apply()
         }
 
+        fun getPublicKey(prefs: SharedPreferences): String {
+            return prefs.getString("publicKey", "NO_KEY").toString()
+        }
+
         fun getPrivateKey(prefs: SharedPreferences): String {
             return prefs.getString("privateKey", "NO_KEY").toString()
         }
-
-        fun getPublicKey(prefs: SharedPreferences): String {
-            return prefs.getString("publicKey", "NO_KEY").toString()}
     }
 }
