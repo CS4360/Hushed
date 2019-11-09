@@ -66,9 +66,7 @@ class MessageRecyclerAdapter(val context: Context, val clickListener: (Messages)
                 builder.setMessage("Are you sure you want to delete conversation?")
                 builder.setPositiveButton("YES") { _, _ ->
                     removeItem(layoutPosition)
-                    DataSource.deleteFrom(preferences)
-                    // After you delete save to preferences, do we need to load as well? loading as well?
-
+                    DataSource.deleteConversationsFrom(preferences, msg.sender)
                     Toast.makeText(context, "Conversation deleted!",Toast.LENGTH_LONG).show()
                 }
 

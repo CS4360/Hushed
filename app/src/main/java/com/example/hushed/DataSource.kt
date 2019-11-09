@@ -139,7 +139,7 @@ class DataSource {
                 }
                 map.add(key, convo)
             }
-            Log.i("JSON", "conversations$map")
+
             prefs.edit()?.putString("conversations", map.toString())?.apply()
             Log.i("Test", "Saved")
         }
@@ -147,7 +147,7 @@ class DataSource {
         fun loadFrom(prefs: SharedPreferences) {
             var json = prefs.getString("conversations", "{}")
             var map = JsonParser().parse(json) as JsonObject
-            Log.i("JSON", "loadFrom $map")
+
 
             Log.i("Test", "Loaded " + map.size() + " Conversations")
 
@@ -192,22 +192,14 @@ class DataSource {
 
         }
 
-        fun deleteFrom(prefs: SharedPreferences) {
+        fun deleteConversationsFrom(prefs: SharedPreferences, id: String) {
             val json = prefs.getString("conversations", "{}")
             var map = JsonParser().parse(json) as JsonObject
 
-
-            var contains = prefs.all
-            Log.i("deleteFrom", "contains before: $contains")
-            Log.i("deleteFrom", "conversation size before: " + conversations.size)
-
-            map.remove("0964a5c6-b313-49fd-ab30-4a191a239661")
+            // remove both from preferences and conversations
+            map.remove(id)
             prefs.edit()?.putString("conversations", map.toString())?.apply()
-            conversations.remove("0964a5c6-b313-49fd-ab30-4a191a239661")
-
-            contains = prefs.all
-            Log.i("deleteFrom", "contains after: $contains")
-            Log.i("deleteFrom", "conversation size after: " + conversations.size)
+            conversations.remove(id)
 
         }
 
