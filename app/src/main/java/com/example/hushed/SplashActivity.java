@@ -1,10 +1,13 @@
 package com.example.hushed;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.app.Activity;
 import android.os.Bundle;
+
+import com.example.hushed.crypto.Keygen;
 
 public class SplashActivity extends Activity {
     private Handler mWaitHandler = new Handler();
@@ -17,31 +20,32 @@ public class SplashActivity extends Activity {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
         if (settings.getBoolean("my_first_time", true)) {
-
             setContentView(R.layout.activity_splash);
 
             mWaitHandler.postDelayed(new Runnable() {
-
                 @Override
                 public void run() {
-
-                    //The following code will execute after the 3 seconds.
-
                     try {
+                        byte[] privateKey = Keygen.generatePrivateKey();
+                        byte[] publicKey = Keygen.generatePublicKey(privateKey);
+
+                        String privKey = Keygen.byteToString(privateKey);
+                        String pubKey = Keygen.byteToString(publicKey);
+
+                        DataSource.Companion.saveKeys(getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE), privKey, pubKey);
+
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                         finish();
-                    } catch (Exception ignored) {
+                    }
+                    catch (Exception ignored) {
                         ignored.printStackTrace();
                     }
                 }
             }, 3000);
 
-            settings.edit().putBoolean("my_first_time", false).commit();
+            settings.edit().putBoolean("my_first_time", false).apply();
         }
-
-        // https://stackoverflow.com/questions/4636141/determine-if-android-app-is-the-first-time-used
-
         else {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
@@ -51,8 +55,6 @@ public class SplashActivity extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        //Remove all the callbacks otherwise navigation will execute even after activity is killed or closed.
         mWaitHandler.removeCallbacksAndMessages(null);
     }
 }

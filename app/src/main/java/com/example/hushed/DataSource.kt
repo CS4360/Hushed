@@ -15,11 +15,9 @@ import kotlin.collections.ArrayList
 
 class DataSource {
     companion object {
-
         private val nicknames = FirebaseFirestore.getInstance()
             .collection("nicknames")
-
-
+        
         // to hold the last message of various users, displayed when selecting a conversation.
         private var conversationList = ArrayList<Messages>()
 
@@ -42,7 +40,7 @@ class DataSource {
         }
 
         fun setViewingConversation(id: String) {
-            viewingConversation = id;
+            viewingConversation = id
         }
 
         // register callback for when conversations have updated
@@ -61,7 +59,7 @@ class DataSource {
                 try {
                     callback.run()
                 } catch (e: Exception) {
-                    Log.e("Callback", "Error in callback", e);
+                    Log.e("Callback", "Error in callback", e)
                 }
             }
         }
@@ -93,7 +91,7 @@ class DataSource {
                 .addOnSuccessListener { doc ->
 
                     if (doc.data.orEmpty().isNotEmpty()) {
-                        var id = doc.data!!["id"]
+                        val id = doc.data!!["id"]
                         if (id is String) {
                             callback(id)
                         } else {
@@ -121,15 +119,15 @@ class DataSource {
 
 
         fun saveTo(prefs: SharedPreferences) {
-            var map = JsonObject()
+            val map = JsonObject()
 
             Log.i("Test", "Saving " + conversations.size + " Conversations")
             for ((key, value) in conversations) {
-                var convo = JsonArray()
+                val convo = JsonArray()
 
                 for (i in value.indices) {
-                    var message = value[i]
-                    var msg = JsonObject()
+                    val message = value[i]
+                    val msg = JsonObject()
 
                     msg.addProperty("sender", message.sender)
                     msg.addProperty("message", message.message)
@@ -148,23 +146,22 @@ class DataSource {
             var json = prefs.getString("conversations", "{}")
             var map = JsonParser().parse(json) as JsonObject
 
-
             Log.i("Test", "Loaded " + map.size() + " Conversations")
 
             conversations.clear()
             conversationList.clear()
 
             for ((key, value) in map.entrySet()) {
-                var convo = ArrayList<Messages>()
+                val convo = ArrayList<Messages>()
                 conversations[key] = convo
 
                 if (value is JsonArray) {
                     for (i in 0 until value.size()) {
-                        var msg = value.get(i)
+                        val msg = value.get(i)
                         if (msg is JsonObject) {
 
 
-                            var message = Messages(
+                            val message = Messages(
                                 sender = msg.get("sender").asString,
                                 timestamp = msg.get("timestamp").asString,
                                 message = msg.get("message").asString
@@ -176,9 +173,9 @@ class DataSource {
 
                     convo.sortWith(Messages.comparator)
 
-                    if(convo.size > 0) {
-                        var lastMessage = convo[convo.size - 1]
-                        var msg = Messages(
+                    if (convo.size > 0) {
+                        val lastMessage = convo[convo.size - 1]
+                        val msg = Messages(
                             timestamp = lastMessage.timestamp,
                             message = lastMessage.message,
                             sender = key
@@ -188,9 +185,8 @@ class DataSource {
                 }
                 conversationList.sortWith(Messages.comparator)
             }
-
-
         }
+
 
         fun deleteConversationsFrom(prefs: SharedPreferences, id: String) {
             val json = prefs.getString("conversations", "{}")
@@ -200,8 +196,19 @@ class DataSource {
             map.remove(id)
             prefs.edit()?.putString("conversations", map.toString())?.apply()
             conversations.remove(id)
-
         }
 
+        fun saveKeys(prefs: SharedPreferences, privKey: String, pubKey: String) {
+            prefs.edit()?.putString("publicKey", pubKey)?.apply()
+            prefs.edit()?.putString("privateKey", privKey)?.apply()
+        }
+
+        fun getPublicKey(prefs: SharedPreferences): String {
+            return prefs.getString("publicKey", "NO_KEY").toString()
+        }
+
+        fun getPrivateKey(prefs: SharedPreferences): String {
+            return prefs.getString("privateKey", "NO_KEY").toString()
+        }
     }
 }

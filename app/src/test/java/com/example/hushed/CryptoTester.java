@@ -11,7 +11,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.crypto.Cipher;
-import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
