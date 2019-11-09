@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hushed.models.Messages
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_home_messages.*
 
 const val ID = "com.example.hushed.ID"
@@ -15,8 +14,6 @@ const val NAME = "com.example.hushed.NAME"
 // Suggestion from jon: Rename this type "ConversationSelectActivity"
 // Naming things is hard, but that better describes what this activity is for
 class MessageActivity : AppCompatActivity() {
-    private val nicknames = FirebaseFirestore.getInstance()
-        .collection("nicknames")
     private lateinit var messageAdapter: MessageRecyclerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +38,7 @@ class MessageActivity : AppCompatActivity() {
     private fun initRecyclerView() {
         recyclerViewHome.apply {
             layoutManager = LinearLayoutManager(this@MessageActivity)
-            messageAdapter = MessageRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
+            messageAdapter = MessageRecyclerAdapter(context) {message: Messages -> messageClicked(message) }
             adapter = messageAdapter
         }
     }

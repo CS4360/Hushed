@@ -2,17 +2,12 @@ package com.example.hushed
 
 import android.content.Intent
 import android.os.Bundle
-import android.service.autofill.Dataset
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_contacts.*
 
 class ContactsActivity : AppCompatActivity() {
-    private val nicknames = FirebaseFirestore.getInstance()
-        .collection("nicknames")
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_contacts)
