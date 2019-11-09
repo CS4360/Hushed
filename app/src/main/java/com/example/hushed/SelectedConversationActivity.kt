@@ -14,9 +14,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class DisplayMessageActivity : AppCompatActivity() {
+class SelectedConversationActivity : AppCompatActivity() {
 
-    private lateinit var displayAdapter: DisplayRecyclerAdapter
+    private lateinit var selectedConversationAdapter: SelectedConversationRecyclerAdapter
 
     private var partnerId: String = ""
     private var partnerName: String = ""
@@ -26,9 +26,9 @@ class DisplayMessageActivity : AppCompatActivity() {
 
     // note from jon: logic to run when we receive an update from the database
     private var conversationUpdatedCallback = Runnable {
-        displayAdapter.notifyDataSetChanged()
+        selectedConversationAdapter.notifyDataSetChanged()
         // scroll adapter to bottom
-        messageList.scrollToPosition(displayAdapter.itemCount - 1)
+        messageList.scrollToPosition(selectedConversationAdapter.itemCount - 1)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +59,7 @@ class DisplayMessageActivity : AppCompatActivity() {
             Log.i("tag", "Click: send_button Button")
             if (txtMessage.text.isNullOrBlank()) {
                 Toast.makeText(
-                    this@DisplayMessageActivity,
+                    this@SelectedConversationActivity,
                     "Message cannot be blank",
                     Toast.LENGTH_LONG
                 ).show()
@@ -92,7 +92,7 @@ class DisplayMessageActivity : AppCompatActivity() {
         // add a message to the local system
         val senderName: String = DataSource.getDeviceID()
         // add message to display
-        displayAdapter.addMessage(msg, senderName, timestamp)
+        selectedConversationAdapter.addMessage(msg, senderName, timestamp)
 
         var convoList = DataSource.getConversationList()
         var index = convoList.indexOfFirst { message -> message.sender == partnerId }
@@ -109,7 +109,7 @@ class DisplayMessageActivity : AppCompatActivity() {
 
         DataSource.saveTo(getSharedPreferences("DataSource", Context.MODE_PRIVATE))
         // scroll adapter to bottom
-        messageList.scrollToPosition(displayAdapter.itemCount - 1)
+        messageList.scrollToPosition(selectedConversationAdapter.itemCount - 1)
 
         // send message to database.
         //document(parnerID -> username -> UUID of person we want to connect to)
@@ -138,20 +138,20 @@ class DisplayMessageActivity : AppCompatActivity() {
         Log.i("messages", "Conversation with " + partnerId + " has " + convo.size + " Mesasges.")
 
         // send the list to the display adapter
-        displayAdapter.submitList(convo)
+        selectedConversationAdapter.submitList(convo)
         // Scroll to bottom
-        messageList.scrollToPosition(displayAdapter.itemCount - 1)
+        messageList.scrollToPosition(selectedConversationAdapter.itemCount - 1)
     }
 
     private fun initRecyclerView() {
         messageList.apply {
-            layoutManager = LinearLayoutManager(this@DisplayMessageActivity).apply {
+            layoutManager = LinearLayoutManager(this@SelectedConversationActivity).apply {
                 stackFromEnd = true
             }
-            // Set 'this' DisplayMessageActivity's displayAdapter
-            displayAdapter = DisplayRecyclerAdapter(context)
+            // Set 'this' SelectedConversationActivity's selectedConversationAdapter
+            selectedConversationAdapter = SelectedConversationRecyclerAdapter(context)
             // Set the 'messageList''s adapter
-            adapter = displayAdapter
+            adapter = selectedConversationAdapter
         }
     }
 }

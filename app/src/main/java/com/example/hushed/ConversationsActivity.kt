@@ -15,7 +15,7 @@ const val NAME = "com.example.hushed.NAME"
 class MessageActivity : AppCompatActivity() {
     private val nicknames = FirebaseFirestore.getInstance()
         .collection("nicknames")
-    private lateinit var messageAdapter: ConversationSelectRecyclerAdapter
+    private lateinit var messageAdapter: ConversationsRecyclerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,13 +39,13 @@ class MessageActivity : AppCompatActivity() {
     private fun initRecyclerView() {
         recyclerViewHome.apply {
             layoutManager = LinearLayoutManager(this@MessageActivity)
-            messageAdapter = ConversationSelectRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
+            messageAdapter = ConversationsRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
             adapter = messageAdapter
         }
     }
 
     private fun messageClicked(msg: Messages) {
-        val intent = Intent(this, DisplayMessageActivity::class.java)
+        val intent = Intent(this, SelectedConversationActivity::class.java)
 
 
         DataSource.nameForId(msg.sender) { name ->

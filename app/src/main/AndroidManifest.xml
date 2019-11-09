@@ -12,7 +12,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".DisplayMessageActivity"
+            android:name=".SelectedConversationActivity"
             android:screenOrientation="portrait"
             android:parentActivityName=".MessageActivity"
             android:windowSoftInputMode="adjustResize">

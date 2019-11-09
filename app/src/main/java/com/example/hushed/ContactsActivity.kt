@@ -2,7 +2,6 @@ package com.example.hushed
 
 import android.content.Intent
 import android.os.Bundle
-import android.service.autofill.Dataset
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -44,7 +43,7 @@ class ContactsActivity : AppCompatActivity() {
     }
 
     private fun setContact(id: String, name: String) {
-        val intent = Intent(this, DisplayMessageActivity::class.java)
+        val intent = Intent(this, SelectedConversationActivity::class.java)
         intent.putExtra(ID, id)
         intent.putExtra(NAME, name)
         startActivity(intent)

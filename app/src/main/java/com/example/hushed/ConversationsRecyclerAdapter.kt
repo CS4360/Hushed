@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.recycler_messages.view.*
 
-// Suggestion from jon: Rename this type "ConversationSelectRecyclerAdapter"
+// Suggestion from jon: Rename this type "ConversationsRecyclerAdapter"
 // Naming things is hard, but that better describes what this adapter is for
-class ConversationSelectRecyclerAdapter(val context: Context, val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class ConversationsRecyclerAdapter(val context: Context, val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     private var messages: MutableList<Messages> = ArrayList()
 
