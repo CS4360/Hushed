@@ -89,7 +89,7 @@ class DisplayRecyclerAdapter(val context: Context) : RecyclerView.Adapter<Recycl
                 builder.setMessage("Are you sure you want to delete message?")
                 builder.setPositiveButton("YES") { _, _ ->
                     removeItem(layoutPosition)
-                    DataSource.deleteMessagesFrom(preferences, msg.sender, msg.message)
+                    DataSource.deleteMessageFrom(preferences, msg.sender, msg.message)
                     Toast.makeText(context, "Message deleted!", Toast.LENGTH_LONG).show()
                 }
 

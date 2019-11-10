@@ -198,15 +198,16 @@ class DataSource {
             conversations.remove(id)
         }
 
-        fun deleteMessagesFrom(prefs: SharedPreferences, id: String, message: String) {
+        fun deleteMessageFrom(prefs: SharedPreferences, id: String, message: String) {
             val json = prefs.getString("conversations", "{}")
             var map = JsonParser().parse(json) as JsonObject
-            Log.i("deleteMessagesFrom", "map before: $map")
+            Log.i("deleteMessageFrom", "map before: $map")
             var count = -1
 
             for ((key, value) in map.entrySet()) {
 
-                if(value is JsonArray) {
+                if(value is JsonArray && value.size() != 0) {
+                    Log.i("deleteMessageFrom", "value size: " + value.size())
                     for (i in 0 until value.size()) {
                         val msg = value.get(i)
 
@@ -217,23 +218,29 @@ class DataSource {
                             if(sender.contains(id)) {
                                 if(singleMsg.contains(message)) {
                                     value.remove(count)
+                                    count = -1
+                                    Log.i("deleteMessageFrom","removed message from value, resetting count")
                                     break
                                 }
                                 else {
-                                    Log.i("deleteMessagesFrom", "singleMsg does not contain message we want to delete")
+                                    Log.i("deleteMessageFrom", "singleMsg does not contain message we want to delete")
                                 }
                             }
                             else {
-                                Log.i("deleteMessagesFrom", "sender does not contain that id")
+                                if(count == (value.size()-1)) {
+                                    Log.i("deleteMessageFrom", "count reset, not found in this conversation")
+                                    count = -1
+                                }
+                                Log.i("deleteMessageFrom", "sender does not contain that id")
                             }
                         }
                     }
                 }
                 else {
-                    Log.i("deleteMessagesFrom", "value is not a JsonArray")
+                    Log.i("deleteMessageFrom", "value is not a JsonArray or is empty")
                 }
             }
-            Log.i("deleteMessagesFrom", "map after: $map")
+            Log.i("deleteMessageFrom", "map after: $map")
             prefs.edit()?.putString("conversations", map.toString())?.apply()
         }
 
