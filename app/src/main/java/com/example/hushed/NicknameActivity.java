@@ -2,6 +2,7 @@ package com.example.hushed;
 
 import android.content.Intent;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -61,7 +62,6 @@ public class NicknameActivity extends AppCompatActivity {
                     .get()
                     .addOnSuccessListener((doc) -> {
                         onNicknamesLoaded(doc);
-                        startConversationsActivity();
                     })
                     .addOnFailureListener((err) -> {
                         Log.e("Test", "Failed to get " + requestedNickname + ": " + err);
@@ -72,6 +72,8 @@ public class NicknameActivity extends AppCompatActivity {
     private void onNicknamesLoaded(DocumentSnapshot doc) {
         String requestedName = nickname.getText().toString();
         String id = DataSource.Companion.getDeviceID();
+
+        SharedPreferences prefFile = getSharedPreferences("SplashActivityPrefsFile", 0);
         String publicKey = DataSource.Companion.getPublicKey(getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE));
 
         nicknames.whereEqualTo("id", id)
@@ -98,12 +100,15 @@ public class NicknameActivity extends AppCompatActivity {
                                     nickname.setEnabled(true);
                                     nicknameButton.setEnabled(true);
                                     nicknameMessage.setText("Congrats, you are now " + requestedName + "!");
+
+                                    prefFile.edit().putBoolean("First_Time", false).apply();
+                                    startConversationsActivity();
                                 })
                                 .addOnFailureListener((err) -> {
                                     nicknameProgress.setVisibility(View.GONE);
                                     nickname.setEnabled(true);
                                     nicknameButton.setEnabled(true);
-                                    nicknameMessage.setText("Sorry, you didn't get " + requestedName + "!");
+                                    nicknameMessage.setText("An issue has occurred.  Please try again!");
                                 });
                     }
                     else {
@@ -116,7 +121,7 @@ public class NicknameActivity extends AppCompatActivity {
                             nicknameProgress.setVisibility(View.GONE);
                         }
                         else {
-                            nicknameMessage.setText("Someone else already has that name!");
+                            nicknameMessage.setText("Somebody else has that name.  Please choose another name!");
                             nickname.setEnabled(true);
                             nicknameButton.setEnabled(true);
                             nicknameProgress.setVisibility(View.GONE);
