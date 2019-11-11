@@ -109,7 +109,6 @@ class MainActivity : AppCompatActivity() {
         var conversationChanged = false
         var conversationList = DataSource.getConversationList()
         var conversationMap = DataSource.getConversations()
-        var partnerNickname = ""
 
         val prefs = getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE)
         val privateKey = Keygen.stringToBytes(prefs.getString("privateKey", "NO_KEY"))
@@ -159,31 +158,33 @@ class MainActivity : AppCompatActivity() {
                                 )
                             )
                         }
+
+                        conversation.sortWith(Messages.comparator)
+
+                        var lastMsg = conversation[conversation.size - 1]
+                        var msg = Messages(
+                            message = lastMsg.message,
+                            sender = partnerId,
+                            timestamp = lastMsg.timestamp
+                        )
+
+                        var i = conversationList.indexOfFirst { message -> message.sender == partnerId }
+                        if (i >= 0) {
+                            conversationList.removeAt(i)
+                        }
+                        conversationList.add(0, msg)
+
+                        db.document(id).update(updates)
+                        conversationList.sortWith(Messages.comparator)
+
+                        if (conversationChanged) {
+                            DataSource.conversationUpdated()
+                        }
                     }
-                    .addOnFailureListener {  }
+                    .addOnFailureListener { e ->
+                        Log.w("Firebase", "Error retrieving data from $partnerNickname: ", e)
+                    }
             }
-
-            conversation.sortWith(Messages.comparator)
-
-            var lastMsg = conversation[conversation.size - 1]
-            var msg = Messages(
-                message = lastMsg.message,
-                sender = partnerId,
-                timestamp = lastMsg.timestamp
-            )
-
-            var i = conversationList.indexOfFirst { message -> message.sender == partnerId }
-            if (i >= 0) {
-                conversationList.removeAt(i)
-            }
-            conversationList.add(0, msg)
-        }
-
-        db.document(id).update(updates)
-        conversationList.sortWith(Messages.comparator)
-
-        if (conversationChanged) {
-            DataSource.conversationUpdated()
         }
     }
 }
