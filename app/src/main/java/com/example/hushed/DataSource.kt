@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import org.json.JSONObject
 import kotlin.collections.ArrayList
 
 class DataSource {
@@ -198,41 +199,30 @@ class DataSource {
             conversations.remove(id)
         }
 
-        fun deleteMessageFrom(prefs: SharedPreferences, id: String, message: String) {
+        fun deleteMessageFrom(prefs: SharedPreferences, id: String, message: String, timestamp: String) {
             val json = prefs.getString("conversations", "{}")
             var map = JsonParser().parse(json) as JsonObject
             Log.i("deleteMessageFrom", "map before: $map")
-            var count = -1
+            var count = 0
 
             for ((key, value) in map.entrySet()) {
 
                 if(value is JsonArray && value.size() != 0) {
                     Log.i("deleteMessageFrom", "value size: " + value.size())
-                    for (i in 0 until value.size()) {
-                        val msg = value.get(i)
+                    while(count < value.size()) {
+                        val msg = value.get(count)
 
                         if(msg is JsonObject) {
                             var sender = msg.get("sender").toString()
                             var singleMsg = msg.get("message").toString()
-                            count ++
                             if(sender.contains(id)) {
                                 if(singleMsg.contains(message)) {
                                     value.remove(count)
-                                    count = -1
+                                    count = 0
                                     Log.i("deleteMessageFrom","removed message from value, resetting count")
-                                    break
-                                }
-                                else {
-                                    Log.i("deleteMessageFrom", "singleMsg does not contain message we want to delete")
                                 }
                             }
-                            else {
-                                if(count == (value.size()-1)) {
-                                    Log.i("deleteMessageFrom", "count reset, not found in this conversation")
-                                    count = -1
-                                }
-                                Log.i("deleteMessageFrom", "sender does not contain that id")
-                            }
+                            count ++
                         }
                     }
                 }
