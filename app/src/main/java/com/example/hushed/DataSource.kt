@@ -202,35 +202,20 @@ class DataSource {
         fun deleteMessageFrom(prefs: SharedPreferences, id: String, message: String, timestamp: String) {
             val json = prefs.getString("conversations", "{}")
             var map = JsonParser().parse(json) as JsonObject
-            Log.i("deleteMessageFrom", "map before: $map")
-            var count = 0
 
             for ((key, value) in map.entrySet()) {
-
-                if(value is JsonArray && value.size() != 0) {
-                    Log.i("deleteMessageFrom", "value size: " + value.size())
-                    while(count < value.size()) {
-                        val msg = value.get(count)
-
-                        if(msg is JsonObject) {
-                            var sender = msg.get("sender").toString()
-                            var singleMsg = msg.get("message").toString()
-                            if(sender.contains(id)) {
-                                if(singleMsg.contains(message)) {
-                                    value.remove(count)
-                                    count = 0
-                                    Log.i("deleteMessageFrom","removed message from value, resetting count")
-                                }
-                            }
-                            count ++
+                if (value is JsonArray) {
+                    for (i in 0 until value.size()) {
+                        val msg = value.get(i).toString()
+                        if(msg.contains(id) && msg.contains(message) && msg.contains(timestamp)) {
+                            Log.i("deleteMessageFrom","This msg: $msg" +
+                                    " contains all 3 values")
+                            value.remove(i)
+                            break
                         }
                     }
                 }
-                else {
-                    Log.i("deleteMessageFrom", "value is not a JsonArray or is empty")
-                }
             }
-            Log.i("deleteMessageFrom", "map after: $map")
             prefs.edit()?.putString("conversations", map.toString())?.apply()
         }
 
