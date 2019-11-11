@@ -7,8 +7,13 @@ import android.util.Log
 
 import androidx.appcompat.app.AppCompatActivity
 
+import com.example.hushed.crypto.EncDec
+import com.example.hushed.crypto.Keygen
+
 import java.util.*
 import java.text.SimpleDateFormat
+
+import javax.crypto.Cipher
 
 import kotlin.collections.HashMap
 import kotlin.collections.ArrayList
@@ -18,14 +23,18 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 import com.example.hushed.models.Messages
 
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import javax.crypto.spec.IvParameterSpec
 
 
 class MainActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
+    private val nicknames = FirebaseFirestore.getInstance()
+        .collection("nicknames")
     private var timer: Timer = Timer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,6 +111,10 @@ class MainActivity : AppCompatActivity() {
         var conversationList = DataSource.getConversationList()
         var conversationMap = DataSource.getConversations()
 
+        val prefs = getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE)
+        val privateKey = Keygen.stringToBytes(prefs.getString("privateKey", "NO_KEY"))
+        val dec = Cipher.getInstance("AES/CBC/PKCS5Padding")
+
         Log.i("Database", "Got new data!")
 
         var id = DataSource.getDeviceID()
@@ -122,16 +135,31 @@ class MainActivity : AppCompatActivity() {
 
             conversationChanged = key.equals(DataSource.getViewingConversation())
 
-            Log.i("Database", "New messages for ${partnerId}!")
-            for ((timestamp, message) in newMessages) {
-                conversation.add(
-                    Messages(
-                        timestamp = timestamp as String,
-                        sender = partnerId,
-                        message = message as String
-                    )
-                )
-            }
+            nicknames.document("Brian").get()
+                .addOnSuccessListener { doc ->
+                    Log.i("Database", "New messages for ${partnerId}!")
+                    for ((timestamp, message) in newMessages) {
+                        val encryptedMessageBytes = Keygen.stringToBytes(message as String)
+                        val iv = IvParameterSpec(encryptedMessageBytes, 0, dec.getBlockSize())
+
+                        val partnerPublicKey = Keygen.stringToBytes(doc.get("publicKey") as String)
+                        val sharedKey = Keygen.generateSharedKey(privateKey, partnerPublicKey)
+                        val aesSharedKey = EncDec.deriveCipherKey(sharedKey)
+                        dec.init(Cipher.DECRYPT_MODE, aesSharedKey, iv)
+
+                        val decryptedMessageBytes = EncDec.decrypt(dec, encryptedMessageBytes)
+                        val decryptedMessage = String(decryptedMessageBytes)
+
+                        conversation.add(
+                            Messages(
+                                timestamp = timestamp as String,
+                                sender = partnerId,
+                                message = decryptedMessage
+                            )
+                        )
+                    }
+                }
+                .addOnFailureListener {  }
 
             conversation.sortWith(Messages.comparator)
 
