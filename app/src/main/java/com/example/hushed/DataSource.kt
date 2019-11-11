@@ -205,13 +205,17 @@ class DataSource {
 
             for ((key, value) in map.entrySet()) {
                 if (value is JsonArray) {
-                    for (i in 0 until value.size()) {
-                        val msg = value.get(i).toString()
-                        if(msg.contains(id) && msg.contains(message) && msg.contains(timestamp)) {
-                            Log.i("deleteMessageFrom","This msg: $msg" +
-                                    " contains all 3 values")
-                            value.remove(i)
-                            break
+                    val stringifiedJSON = value.toString()
+
+                    if(stringifiedJSON.contains(id) && stringifiedJSON.contains(message) && stringifiedJSON.contains(timestamp)){
+
+                        for (i in 0 until value.size()) {
+                            val msg = value.get(i).toString()
+
+                            if(msg.contains(id) && msg.contains(message) && msg.contains(timestamp)) {
+                                value.remove(i)
+                                break
+                            }
                         }
                     }
                 }
