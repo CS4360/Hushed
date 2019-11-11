@@ -2,19 +2,26 @@ package com.example.hushed
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.example.hushed.models.Messages
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FieldValue
-import kotlinx.android.synthetic.main.activity_main.*
-import com.google.firebase.firestore.FirebaseFirestore
-import java.text.SimpleDateFormat
+
+import androidx.appcompat.app.AppCompatActivity
+
 import java.util.*
-import kotlin.collections.ArrayList
+import java.text.SimpleDateFormat
+
 import kotlin.collections.HashMap
+import kotlin.collections.ArrayList
 import kotlin.concurrent.scheduleAtFixedRate
+
+import kotlinx.android.synthetic.main.activity_main.*
+
+import com.example.hushed.models.Messages
+
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+
 
 class MainActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
