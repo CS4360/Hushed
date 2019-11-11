@@ -23,7 +23,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 import com.example.hushed.models.Messages
 
-import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -110,6 +109,7 @@ class MainActivity : AppCompatActivity() {
         var conversationChanged = false
         var conversationList = DataSource.getConversationList()
         var conversationMap = DataSource.getConversations()
+        var partnerNickname = ""
 
         val prefs = getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE)
         val privateKey = Keygen.stringToBytes(prefs.getString("privateKey", "NO_KEY"))
@@ -135,31 +135,33 @@ class MainActivity : AppCompatActivity() {
 
             conversationChanged = key.equals(DataSource.getViewingConversation())
 
-            nicknames.document("Brian").get()
-                .addOnSuccessListener { doc ->
-                    Log.i("Database", "New messages for ${partnerId}!")
-                    for ((timestamp, message) in newMessages) {
-                        val encryptedMessageBytes = Keygen.stringToBytes(message as String)
-                        val iv = IvParameterSpec(encryptedMessageBytes, 0, dec.getBlockSize())
+            DataSource.nameForId(partnerId) { partnerNickname ->
+                nicknames.document(partnerNickname).get()
+                    .addOnSuccessListener { doc ->
+                        Log.i("Database", "New messages for ${partnerId}!")
+                        for ((timestamp, message) in newMessages) {
+                            val encryptedMessageBytes = Keygen.stringToBytes(message as String)
+                            val iv = IvParameterSpec(encryptedMessageBytes, 0, dec.getBlockSize())
 
-                        val partnerPublicKey = Keygen.stringToBytes(doc.get("publicKey") as String)
-                        val sharedKey = Keygen.generateSharedKey(privateKey, partnerPublicKey)
-                        val aesSharedKey = EncDec.deriveCipherKey(sharedKey)
-                        dec.init(Cipher.DECRYPT_MODE, aesSharedKey, iv)
+                            val partnerPublicKey = Keygen.stringToBytes(doc.get("publicKey") as String)
+                            val sharedKey = Keygen.generateSharedKey(privateKey, partnerPublicKey)
+                            val aesSharedKey = EncDec.deriveCipherKey(sharedKey)
+                            dec.init(Cipher.DECRYPT_MODE, aesSharedKey, iv)
 
-                        val decryptedMessageBytes = EncDec.decrypt(dec, encryptedMessageBytes)
-                        val decryptedMessage = String(decryptedMessageBytes)
+                            val decryptedMessageBytes = EncDec.decrypt(dec, encryptedMessageBytes)
+                            val decryptedMessage = String(decryptedMessageBytes)
 
-                        conversation.add(
-                            Messages(
-                                timestamp = timestamp as String,
-                                sender = partnerId,
-                                message = decryptedMessage
+                            conversation.add(
+                                Messages(
+                                    timestamp = timestamp as String,
+                                    sender = partnerId,
+                                    message = decryptedMessage
+                                )
                             )
-                        )
+                        }
                     }
-                }
-                .addOnFailureListener {  }
+                    .addOnFailureListener {  }
+            }
 
             conversation.sortWith(Messages.comparator)
 
