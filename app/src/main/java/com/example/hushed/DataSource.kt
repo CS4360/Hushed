@@ -200,6 +200,30 @@ class DataSource {
             conversations.remove(id)
         }
 
+        fun deleteMessageFrom(prefs: SharedPreferences, id: String, message: String, timestamp: String) {
+            val json = prefs.getString("conversations", "{}")
+            var map = JsonParser().parse(json) as JsonObject
+
+            for ((key, value) in map.entrySet()) {
+                if (value is JsonArray) {
+                    val stringifiedJSON = value.toString()
+
+                    if(stringifiedJSON.contains(id) && stringifiedJSON.contains(message) && stringifiedJSON.contains(timestamp)){
+
+                        for (i in 0 until value.size()) {
+                            val msg = value.get(i).toString()
+
+                            if(msg.contains(id) && msg.contains(message) && msg.contains(timestamp)) {
+                                value.remove(i)
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+            prefs.edit()?.putString("conversations", map.toString())?.apply()
+        }
+
         fun saveKeys(prefs: SharedPreferences, privKey: String, pubKey: String) {
             prefs.edit()?.putString("publicKey", pubKey)?.apply()
             prefs.edit()?.putString("privateKey", privKey)?.apply()

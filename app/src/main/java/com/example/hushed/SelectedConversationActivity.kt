@@ -1,18 +1,28 @@
 package com.example.hushed
 
+import java.text.SimpleDateFormat
+import java.util.*
+
+import javax.crypto.Cipher
+
+import com.example.hushed.crypto.EncDec
+import com.example.hushed.crypto.Keygen
+import com.example.hushed.models.Messages
+
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+
+import kotlin.collections.ArrayList
+
+import kotlinx.android.synthetic.main.activity_message_chat.*
+
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.hushed.models.Messages
-import kotlinx.android.synthetic.main.activity_message_chat.*
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
 
 class SelectedConversationActivity : AppCompatActivity() {
 
@@ -23,8 +33,9 @@ class SelectedConversationActivity : AppCompatActivity() {
 
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
+    private val nicknames = FirebaseFirestore.getInstance()
+        .collection("nicknames")
 
-    // note from jon: logic to run when we receive an update from the database
     private var conversationUpdatedCallback = Runnable {
         selectedConversationAdapter.notifyDataSetChanged()
         // scroll adapter to bottom
@@ -89,13 +100,17 @@ class SelectedConversationActivity : AppCompatActivity() {
     }
 
     private fun sendMessage(msg: String, timestamp: String) {
-        // add a message to the local system
-        val senderName: String = DataSource.getDeviceID()
-        // add message to display
-        selectedConversationAdapter.addMessage(msg, senderName, timestamp)
+        val prefs = getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE)
+        val privateKey = Keygen.stringToBytes(prefs.getString("privateKey", "NO_KEY"))
+        val enc = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        val messageInBytes = txtMessage.text.toString().toByteArray()
 
+        val senderName: String = DataSource.getDeviceID()
         var convoList = DataSource.getConversationList()
         var index = convoList.indexOfFirst { message -> message.sender == partnerId }
+
+        selectedConversationAdapter.addMessage(msg, senderName, timestamp)
+
         if (index >= 0) {
             convoList.removeAt(index)
         }
@@ -108,23 +123,28 @@ class SelectedConversationActivity : AppCompatActivity() {
         convoList.sortWith(Messages.comparator)
 
         DataSource.saveTo(getSharedPreferences("DataSource", Context.MODE_PRIVATE))
-        // scroll adapter to bottom
         messageList.scrollToPosition(selectedConversationAdapter.itemCount - 1)
 
-        // send message to database.
-        //document(parnerID -> username -> UUID of person we want to connect to)
-        //right now partnerId is the just the string of the person we want to connect to
-        db.document(partnerId)
-            .set(
-                hashMapOf(DataSource.getDeviceID() to hashMapOf(timestamp to txtMessage.text.toString())),
-                SetOptions.merge()
-            )
-            .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
-            .addOnFailureListener { e ->
-                Log.w("Firebase", "Error writing document", e)
+        nicknames.document(partnerName).get()
+            .addOnSuccessListener { doc ->
+                val partnerPublicKey = Keygen.stringToBytes(doc.get("publicKey") as String)
+                val sharedKey = Keygen.generateSharedKey(privateKey, partnerPublicKey)
+                val aesSharedKey = EncDec.deriveCipherKey(sharedKey)
+                enc.init(Cipher.ENCRYPT_MODE, aesSharedKey)
+                val encryptedMessageBytes = EncDec.encrypt(enc, messageInBytes)
+                val stringifiedEncMessage = Keygen.byteToString(encryptedMessageBytes)
+
+                db.document(partnerId)
+                    .set(
+                        hashMapOf(DataSource.getDeviceID() to hashMapOf(timestamp to stringifiedEncMessage)),
+                        SetOptions.merge()
+                    )
+                    .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }
+                    .addOnFailureListener { e ->
+                        Log.w("Firebase", "Error writing document", e)
+                    }
             }
-
-
+            .addOnFailureListener {  }
     }
 
     // note from jon: Added this method to initialize the data set in the recycler view

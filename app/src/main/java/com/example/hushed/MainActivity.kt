@@ -7,16 +7,21 @@ import android.content.Context
 
 import androidx.appcompat.app.AppCompatActivity
 
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.concurrent.scheduleAtFixedRate
-
-import kotlinx.android.synthetic.main.activity_main.*
+import com.example.hushed.crypto.EncDec
+import com.example.hushed.crypto.Keygen
+import com.example.hushed.models.Messages
 
 import java.util.*
 import java.text.SimpleDateFormat
 
-import com.example.hushed.models.Messages
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+
+import kotlin.collections.HashMap
+import kotlin.collections.ArrayList
+import kotlin.concurrent.scheduleAtFixedRate
+
+import kotlinx.android.synthetic.main.activity_main.*
 
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.DocumentSnapshot
@@ -26,6 +31,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 class MainActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
+    private val nicknames = FirebaseFirestore.getInstance()
+        .collection("nicknames")
     private var timer: Timer = Timer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +107,10 @@ class MainActivity : AppCompatActivity() {
         var conversationList = DataSource.getConversationList()
         var conversationMap = DataSource.getConversations()
 
+        val prefs = getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE)
+        val privateKey = Keygen.stringToBytes(prefs.getString("privateKey", "NO_KEY"))
+        val dec = Cipher.getInstance("AES/CBC/PKCS5Padding")
+
         Log.i("Database", "Got new data!")
 
         var id = DataSource.getDeviceID()
@@ -120,38 +131,57 @@ class MainActivity : AppCompatActivity() {
 
             conversationChanged = key.equals(DataSource.getViewingConversation())
 
-            Log.i("Database", "New messages for ${partnerId}!")
-            for ((timestamp, message) in newMessages) {
-                conversation.add(
-                    Messages(
-                        timestamp = timestamp as String,
-                        sender = partnerId,
-                        message = message as String
-                    )
-                )
+            DataSource.nameForId(partnerId) { partnerNickname ->
+                nicknames.document(partnerNickname).get()
+                    .addOnSuccessListener { doc ->
+                        Log.i("Database", "New messages for ${partnerId}!")
+                        for ((timestamp, message) in newMessages) {
+                            val encryptedMessageBytes = Keygen.stringToBytes(message as String)
+                            val iv = IvParameterSpec(encryptedMessageBytes, 0, dec.getBlockSize())
+
+                            val partnerPublicKey = Keygen.stringToBytes(doc.get("publicKey") as String)
+                            val sharedKey = Keygen.generateSharedKey(privateKey, partnerPublicKey)
+                            val aesSharedKey = EncDec.deriveCipherKey(sharedKey)
+                            dec.init(Cipher.DECRYPT_MODE, aesSharedKey, iv)
+
+                            val decryptedMessageBytes = EncDec.decrypt(dec, encryptedMessageBytes)
+                            val decryptedMessage = String(decryptedMessageBytes)
+
+                            conversation.add(
+                                Messages(
+                                    timestamp = timestamp as String,
+                                    sender = partnerId,
+                                    message = decryptedMessage
+                                )
+                            )
+                        }
+
+                        conversation.sortWith(Messages.comparator)
+
+                        var lastMsg = conversation[conversation.size - 1]
+                        var msg = Messages(
+                            message = lastMsg.message,
+                            sender = partnerId,
+                            timestamp = lastMsg.timestamp
+                        )
+
+                        var i = conversationList.indexOfFirst { message -> message.sender == partnerId }
+                        if (i >= 0) {
+                            conversationList.removeAt(i)
+                        }
+                        conversationList.add(0, msg)
+
+                        db.document(id).update(updates)
+                        conversationList.sortWith(Messages.comparator)
+
+                        if (conversationChanged) {
+                            DataSource.conversationUpdated()
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("Firebase", "Error retrieving data from $partnerNickname: ", e)
+                    }
             }
-
-            conversation.sortWith(Messages.comparator)
-
-            var lastMsg = conversation[conversation.size - 1]
-            var msg = Messages(
-                message = lastMsg.message,
-                sender = partnerId,
-                timestamp = lastMsg.timestamp
-            )
-
-            var i = conversationList.indexOfFirst { message -> message.sender == partnerId }
-            if (i >= 0) {
-                conversationList.removeAt(i)
-            }
-            conversationList.add(0, msg)
-        }
-
-        db.document(id).update(updates)
-        conversationList.sortWith(Messages.comparator)
-
-        if (conversationChanged) {
-            DataSource.conversationUpdated()
         }
     }
 }

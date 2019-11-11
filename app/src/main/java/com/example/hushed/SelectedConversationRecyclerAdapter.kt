@@ -78,6 +78,7 @@ class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.A
 
         fun bind(msg: Messages) {
 
+            val preferences = context.getSharedPreferences("DataSource", Context.MODE_PRIVATE)
             var ownId = DataSource.getDeviceID()
 
             itemView.setOnLongClickListener {
@@ -88,6 +89,7 @@ class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.A
                 builder.setMessage("Are you sure you want to delete message?")
                 builder.setPositiveButton("YES") { _, _ ->
                     removeItem(layoutPosition)
+                    DataSource.deleteMessageFrom(preferences, msg.sender, msg.message, msg.timestamp)
                     Toast.makeText(context, "Message deleted!", Toast.LENGTH_LONG).show()
                 }
 
