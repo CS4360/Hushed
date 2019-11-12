@@ -1,7 +1,10 @@
 package com.example.hushed;
 
+import android.content.Intent;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class SettingsActivity extends AppCompatActivity {
+public class NicknameActivity extends AppCompatActivity {
     private CollectionReference nicknames = FirebaseFirestore.getInstance()
             .collection("nicknames");
 
@@ -28,11 +31,12 @@ public class SettingsActivity extends AppCompatActivity {
     private Button nicknameButton;
     private ProgressBar nicknameProgress;
     private EditText nickname;
+    private Handler mWaitHandler = new Handler();
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.settings);
+        setContentView(R.layout.activity_nickname);
 
         nicknameButton = findViewById(R.id.nicknameButton);
         nicknameMessage = findViewById(R.id.nicknameMessage);
@@ -40,28 +44,36 @@ public class SettingsActivity extends AppCompatActivity {
         nickname = findViewById(R.id.nickname);
 
         nicknameButton.setOnClickListener(this::onNicknameButtonClicked);
-
-
     }
 
     private void onNicknameButtonClicked(View clickedView) {
-        nicknameButton.setEnabled(false);
-        nickname.setEnabled(false);
-        nicknameProgress.setVisibility(View.VISIBLE);
-        nicknameMessage.setText("Loading nicknames...");
         String requestedNickname = nickname.getText().toString();
 
-        nicknames.document(requestedNickname)
-                .get()
-                .addOnSuccessListener(this::onNicknamesLoaded)
-                .addOnFailureListener((err) -> {
-                    Log.e("Test", "Failed to get " + requestedNickname + ": " + err);
-                });
+        if(requestedNickname.isEmpty() || requestedNickname == null) {
+            nicknameMessage.setText("Please provide a nickname");
+        }
+        else {
+            nicknameButton.setEnabled(false);
+            nickname.setEnabled(false);
+            nicknameProgress.setVisibility(View.VISIBLE);
+            nicknameMessage.setText("Loading nicknames...");
+
+            nicknames.document(requestedNickname)
+                    .get()
+                    .addOnSuccessListener((doc) -> {
+                        onNicknamesLoaded(doc);
+                    })
+                    .addOnFailureListener((err) -> {
+                        Log.e("Test", "Failed to get " + requestedNickname + ": " + err);
+                    });
+        }
     }
 
     private void onNicknamesLoaded(DocumentSnapshot doc) {
         String requestedName = nickname.getText().toString();
         String id = DataSource.Companion.getDeviceID();
+
+        SharedPreferences prefFile = getSharedPreferences("SplashActivityPrefsFile", 0);
         String publicKey = DataSource.Companion.getPublicKey(getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE));
 
         nicknames.whereEqualTo("id", id)
@@ -88,12 +100,15 @@ public class SettingsActivity extends AppCompatActivity {
                                     nickname.setEnabled(true);
                                     nicknameButton.setEnabled(true);
                                     nicknameMessage.setText("Congrats, you are now " + requestedName + "!");
+
+                                    prefFile.edit().putBoolean("First_Time", false).apply();
+                                    startConversationsActivity();
                                 })
                                 .addOnFailureListener((err) -> {
                                     nicknameProgress.setVisibility(View.GONE);
                                     nickname.setEnabled(true);
                                     nicknameButton.setEnabled(true);
-                                    nicknameMessage.setText("Sorry, you didn't get " + requestedName + "!");
+                                    nicknameMessage.setText("An issue has occurred.  Please try again!");
                                 });
                     }
                     else {
@@ -106,12 +121,29 @@ public class SettingsActivity extends AppCompatActivity {
                             nicknameProgress.setVisibility(View.GONE);
                         }
                         else {
-                            nicknameMessage.setText("Someone else already has that name!");
+                            nicknameMessage.setText("Somebody else has that name.  Please choose another name!");
                             nickname.setEnabled(true);
                             nicknameButton.setEnabled(true);
                             nicknameProgress.setVisibility(View.GONE);
                         }
                     }
                 });
+    }
+
+    private void startConversationsActivity() {
+        mWaitHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.i("Activity","Entering Conversations Activity");
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }, 2000);
     }
 }

@@ -1,25 +1,31 @@
 package com.example.hushed;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import java.util.UUID;
+
+import android.util.Log;
+import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
-import android.os.Bundle;
+import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.example.hushed.crypto.Keygen;
+
 
 public class SplashActivity extends Activity {
     private Handler mWaitHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefFile = getSharedPreferences("SplashActivityPrefsFile", 0);
+
         super.onCreate(savedInstanceState);
 
-        final String PREFS_NAME = "MyPrefsFile";
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        if (prefFile.getBoolean("First_Time", true)) {
+            Log.i("Activity","Entering Splash Activity");
 
-        if (settings.getBoolean("my_first_time", true)) {
+            setDeviceID();
             setContentView(R.layout.activity_splash);
 
             mWaitHandler.postDelayed(new Runnable() {
@@ -34,7 +40,8 @@ public class SplashActivity extends Activity {
 
                         DataSource.Companion.saveKeys(getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE), privKey, pubKey);
 
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        Log.i("Activity","Entering Nickname Activity");
+                        Intent intent = new Intent(getApplicationContext(), NicknameActivity.class);
                         startActivity(intent);
                         finish();
                     }
@@ -43,10 +50,9 @@ public class SplashActivity extends Activity {
                     }
                 }
             }, 3000);
-
-            settings.edit().putBoolean("my_first_time", false).apply();
         }
         else {
+            Log.i("Activity","Entering Conversations Activity");
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
         }
@@ -56,5 +62,16 @@ public class SplashActivity extends Activity {
     public void onDestroy() {
         super.onDestroy();
         mWaitHandler.removeCallbacksAndMessages(null);
+    }
+
+    private void setDeviceID() {
+        SharedPreferences prefFile = getPreferences(Context.MODE_PRIVATE);
+
+        if (prefFile.getString("UUID", null) == null) {
+            String myID = UUID.randomUUID().toString();
+            prefFile.edit().putString("UUID", myID).apply();
+
+            DataSource.Companion.setDeviceID(myID);
+        }
     }
 }

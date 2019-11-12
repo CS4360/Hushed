@@ -1,19 +1,21 @@
 package com.example.hushed
 
-import android.content.Context
-import android.content.Intent
-import android.os.Bundle
 import android.util.Log
+import android.os.Bundle
+import android.content.Intent
+import android.content.Context
 
 import androidx.appcompat.app.AppCompatActivity
 
 import com.example.hushed.crypto.EncDec
 import com.example.hushed.crypto.Keygen
+import com.example.hushed.models.Messages
 
 import java.util.*
 import java.text.SimpleDateFormat
 
 import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
 
 import kotlin.collections.HashMap
 import kotlin.collections.ArrayList
@@ -21,12 +23,9 @@ import kotlin.concurrent.scheduleAtFixedRate
 
 import kotlinx.android.synthetic.main.activity_main.*
 
-import com.example.hushed.models.Messages
-
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import javax.crypto.spec.IvParameterSpec
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,9 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_main)
-        DataSource.setDeviceID(checkAddress().toString())
 
         button_connect.setOnClickListener {
             Log.i("Button", "Click: Connect button clicked")
@@ -65,7 +62,7 @@ class MainActivity : AppCompatActivity() {
 
         button_settings.setOnClickListener {
             Log.i("Button", "Click: Settings button clicked")
-            var intent = Intent(this, SettingsActivity::class.java)
+            var intent = Intent(this, NicknameActivity::class.java)
             startActivity(intent)
         }
 

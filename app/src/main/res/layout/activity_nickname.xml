@@ -5,18 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="165dp"
-        tools:layout_editor_absoluteY="258dp">
+        android:layout_height="match_parent">
 
         <EditText
-            android:id="@+id/enter_contact"
+            android:id="@+id/nickname"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="@string/prompt_enterContact"
+            android:hint="@string/prompt_enterNickname"
             android:importantForAutofill="no"
             android:inputType="textPersonName"
             android:textAlignment="center"
@@ -25,15 +24,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ProgressBar
+            android:id="@+id/nicknameProgress"
+            style="?android:attr/progressBarStyle"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <Button
-            android:id="@+id/enter_button"
+            android:id="@+id/nicknameButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/button_enter"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/enter_contact" />
+            app:layout_constraintTop_toBottomOf="@+id/nickname" />
+
+        <TextView
+            android:id="@+id/nicknameMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@+id/nicknameButton"
+            tools:layout_editor_absoluteX="-16dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

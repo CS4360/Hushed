@@ -39,7 +39,7 @@ class ContactsActivity : AppCompatActivity() {
     }
 
     private fun setContact(id: String, name: String) {
-        val intent = Intent(this, DisplayMessageActivity::class.java)
+        val intent = Intent(this, SelectedConversationActivity::class.java)
         intent.putExtra(ID, id)
         intent.putExtra(NAME, name)
         startActivity(intent)

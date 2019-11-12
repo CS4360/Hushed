@@ -1,18 +1,19 @@
-/*
-    This is where we get the data from the the server
-*/
 package com.example.hushed
 
-import android.content.SharedPreferences
 import android.util.Log
-import android.widget.Toast
+import android.content.SharedPreferences
+
 import com.example.hushed.models.Messages
+
 import com.google.firebase.firestore.FirebaseFirestore
+
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import org.json.JSONObject
+
+import kotlin.collections.HashMap
 import kotlin.collections.ArrayList
+
 
 class DataSource {
     companion object {
@@ -81,8 +82,8 @@ class DataSource {
             return deviceID
         }
 
-        fun setDeviceID(address: String) {
-            deviceID = address
+        fun setDeviceID(myID: String) {
+            deviceID = myID
         }
 
         const val NO_ID = "[NO_ID]"
