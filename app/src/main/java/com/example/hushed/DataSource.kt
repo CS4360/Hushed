@@ -10,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import java.util.*
 
 import kotlin.collections.HashMap
 import kotlin.collections.ArrayList
@@ -78,12 +79,15 @@ class DataSource {
             return conversationList
         }
 
-        fun getDeviceID(): String {
-            return deviceID
+        fun getDeviceID(prefFile: SharedPreferences): String {
+            return prefFile.getString("UUID", "NO_ID").toString()
         }
 
-        fun setDeviceID(myID: String) {
-            deviceID = myID
+        fun setDeviceID(prefFile: SharedPreferences) {
+            if (prefFile.getString("UUID", null) == null) {
+                val myID = UUID.randomUUID().toString()
+                prefFile.edit().putString("UUID", myID).apply()
+            }
         }
 
         const val NO_ID = "[NO_ID]"

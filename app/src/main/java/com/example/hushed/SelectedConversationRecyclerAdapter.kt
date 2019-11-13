@@ -15,7 +15,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
     private var messages: MutableList<Messages> = ArrayList()
     private var date = Date()
     private val formatter = SimpleDateFormat("MM/dd/yy HH:mm a")
@@ -77,9 +76,10 @@ class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.A
         private val sentMessageTime: TextView = itemView.findViewById(R.id.txtMyMessageTime)
 
         fun bind(msg: Messages) {
+            val prefFile = context.getSharedPreferences("SplashActivityPrefsFile", 0)
 
             val preferences = context.getSharedPreferences("DataSource", Context.MODE_PRIVATE)
-            var ownId = DataSource.getDeviceID()
+            var ownId = DataSource.getDeviceID(prefFile)
 
             itemView.setOnLongClickListener {
 

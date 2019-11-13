@@ -25,7 +25,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 
 class SelectedConversationActivity : AppCompatActivity() {
-
     private lateinit var selectedConversationAdapter: SelectedConversationRecyclerAdapter
 
     private var partnerId: String = ""
@@ -100,12 +99,14 @@ class SelectedConversationActivity : AppCompatActivity() {
     }
 
     private fun sendMessage(msg: String, timestamp: String) {
+        val prefFile = getSharedPreferences("SplashActivityPrefsFile", 0)
+
         val prefs = getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE)
         val privateKey = Keygen.stringToBytes(prefs.getString("privateKey", "NO_KEY"))
         val enc = Cipher.getInstance("AES/CBC/PKCS5Padding")
         val messageInBytes = txtMessage.text.toString().toByteArray()
 
-        val senderName: String = DataSource.getDeviceID()
+        val senderName: String = DataSource.getDeviceID(prefFile)
         var convoList = DataSource.getConversationList()
         var index = convoList.indexOfFirst { message -> message.sender == partnerId }
 
@@ -136,7 +137,7 @@ class SelectedConversationActivity : AppCompatActivity() {
 
                 db.document(partnerId)
                     .set(
-                        hashMapOf(DataSource.getDeviceID() to hashMapOf(timestamp to stringifiedEncMessage)),
+                        hashMapOf(DataSource.getDeviceID(prefFile) to hashMapOf(timestamp to stringifiedEncMessage)),
                         SetOptions.merge()
                     )
                     .addOnSuccessListener { Log.d("Firebase", "DocumentSnapshot successfully written!") }

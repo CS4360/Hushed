@@ -70,10 +70,10 @@ public class NicknameActivity extends AppCompatActivity {
     }
 
     private void onNicknamesLoaded(DocumentSnapshot doc) {
-        String requestedName = nickname.getText().toString();
-        String id = DataSource.Companion.getDeviceID();
-
         SharedPreferences prefFile = getSharedPreferences("SplashActivityPrefsFile", 0);
+        String requestedName = nickname.getText().toString();
+        String id = DataSource.Companion.getDeviceID(prefFile);
+
         String publicKey = DataSource.Companion.getPublicKey(getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE));
 
         nicknames.whereEqualTo("id", id)
@@ -136,7 +136,7 @@ public class NicknameActivity extends AppCompatActivity {
             public void run() {
                 try {
                     Log.i("Activity","Entering Conversations Activity");
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
                     startActivity(intent);
                     finish();
                 }

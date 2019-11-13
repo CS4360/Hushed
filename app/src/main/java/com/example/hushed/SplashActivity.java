@@ -1,7 +1,5 @@
 package com.example.hushed;
 
-import java.util.UUID;
-
 import android.util.Log;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,7 +23,7 @@ public class SplashActivity extends Activity {
         if (prefFile.getBoolean("First_Time", true)) {
             Log.i("Activity","Entering Splash Activity");
 
-            setDeviceID();
+            DataSource.Companion.setDeviceID(prefFile);
             setContentView(R.layout.activity_splash);
 
             mWaitHandler.postDelayed(new Runnable() {
@@ -53,7 +51,7 @@ public class SplashActivity extends Activity {
         }
         else {
             Log.i("Activity","Entering Conversations Activity");
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
             startActivity(intent);
         }
     }
@@ -62,16 +60,5 @@ public class SplashActivity extends Activity {
     public void onDestroy() {
         super.onDestroy();
         mWaitHandler.removeCallbacksAndMessages(null);
-    }
-
-    private void setDeviceID() {
-        SharedPreferences prefFile = getPreferences(Context.MODE_PRIVATE);
-
-        if (prefFile.getString("UUID", null) == null) {
-            String myID = UUID.randomUUID().toString();
-            prefFile.edit().putString("UUID", myID).apply();
-
-            DataSource.Companion.setDeviceID(myID);
-        }
     }
 }
