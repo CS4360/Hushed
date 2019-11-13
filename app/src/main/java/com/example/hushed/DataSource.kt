@@ -1,5 +1,7 @@
 package com.example.hushed
 
+import java.util.UUID
+
 import android.util.Log
 import android.content.SharedPreferences
 
@@ -10,7 +12,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import java.util.*
 
 import kotlin.collections.HashMap
 import kotlin.collections.ArrayList

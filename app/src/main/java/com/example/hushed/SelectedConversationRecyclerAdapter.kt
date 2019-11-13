@@ -1,18 +1,23 @@
 package com.example.hushed
 
-import android.app.AlertDialog
-import android.content.Context
+import androidx.recyclerview.widget.RecyclerView
+
+import com.example.hushed.models.Messages
+
+import java.util.Date
+import java.text.SimpleDateFormat
+
+import kotlin.collections.ArrayList
+
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
-import androidx.recyclerview.widget.RecyclerView
-import com.example.hushed.models.Messages
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
+import android.app.AlertDialog
+import android.content.Context
+import android.view.LayoutInflater
+
 
 class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var messages: MutableList<Messages> = ArrayList()

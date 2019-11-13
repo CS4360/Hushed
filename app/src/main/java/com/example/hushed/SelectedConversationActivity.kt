@@ -1,7 +1,7 @@
 package com.example.hushed
 
+import java.util.Date
 import java.text.SimpleDateFormat
-import java.util.*
 
 import javax.crypto.Cipher
 
@@ -9,20 +9,21 @@ import com.example.hushed.crypto.EncDec
 import com.example.hushed.crypto.Keygen
 import com.example.hushed.models.Messages
 
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.FirebaseFirestore
 
 import kotlin.collections.ArrayList
 
 import kotlinx.android.synthetic.main.activity_message_chat.*
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import android.content.Context
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+
 
 class SelectedConversationActivity : AppCompatActivity() {
     private lateinit var selectedConversationAdapter: SelectedConversationRecyclerAdapter

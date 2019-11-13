@@ -1,27 +1,35 @@
 package com.example.hushed
 
-import android.content.Context
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import android.util.Log
+import android.os.Bundle
+import android.content.Intent
+import android.content.Context
+
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.activity_home_messages.*
+
 import com.example.hushed.crypto.EncDec
 import com.example.hushed.crypto.Keygen
 import com.example.hushed.models.Messages
-import com.google.firebase.firestore.DocumentSnapshot
+
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.activity_home_messages.*
-import java.util.*
+
+import java.util.Timer
+
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
-import kotlin.collections.ArrayList
+
 import kotlin.collections.HashMap
+import kotlin.collections.ArrayList
 import kotlin.concurrent.scheduleAtFixedRate
+
 
 const val ID = "com.example.hushed.ID"
 const val NAME = "com.example.hushed.NAME"
+
 
 class MessageActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
@@ -38,7 +46,6 @@ class MessageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home_messages)
 
-        val temp = DataSource.getDeviceID(prefFile)
         db.document(DataSource.getDeviceID(prefFile)).get()
             .addOnSuccessListener { doc ->
                 onLoadedDocument(doc)
