@@ -24,9 +24,6 @@
         <activity
             android:name=".ConversationsActivity"
             android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ConversationsActivity" />
         </activity>
         <activity
             android:name=".NicknameActivity"
