@@ -31,7 +31,7 @@ const val ID = "com.example.hushed.ID"
 const val NAME = "com.example.hushed.NAME"
 
 
-class MessageActivity : AppCompatActivity() {
+class ConversationsActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
     private val nicknames = FirebaseFirestore.getInstance()
@@ -76,7 +76,7 @@ class MessageActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
         recyclerViewHome.apply {
-            layoutManager = LinearLayoutManager(this@MessageActivity)
+            layoutManager = LinearLayoutManager(this@ConversationsActivity)
             messageAdapter = ConversationsRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
             adapter = messageAdapter
         }

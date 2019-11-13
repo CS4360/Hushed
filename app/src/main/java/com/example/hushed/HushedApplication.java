@@ -26,7 +26,7 @@ public class HushedApplication
     @Override public void onActivityPaused(@NonNull Activity activity) { }
     @Override public void onActivityStopped(@NonNull Activity activity) {
         Log.i("Test", "Activity " + activity.getClass() + " Stopped.");
-        if (activity instanceof MessageActivity) {
+        if (activity instanceof ConversationsActivity) {
             DataSource.Companion.saveTo(getSharedPreferences("DataSource", Context.MODE_PRIVATE));
         }
     }

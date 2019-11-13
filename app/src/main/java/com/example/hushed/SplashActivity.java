@@ -51,7 +51,7 @@ public class SplashActivity extends Activity {
         }
         else {
             Log.i("Activity","Entering Conversations Activity");
-            Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
+            Intent intent = new Intent(getApplicationContext(), ConversationsActivity.class);
             startActivity(intent);
         }
     }

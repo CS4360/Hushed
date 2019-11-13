@@ -136,7 +136,7 @@ public class NicknameActivity extends AppCompatActivity {
             public void run() {
                 try {
                     Log.i("Activity","Entering Conversations Activity");
-                    Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), ConversationsActivity.class);
                     startActivity(intent);
                     finish();
                 }
