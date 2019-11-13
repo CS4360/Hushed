@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Hushed</string>
     <string name="app_version">Pre-Alpha</string>
+    <string name="action_nickname">Nickname</string>
     <string name="course_name">CS4360 Senior Experience Course</string>
     <string name="button_connect">Connect</string>
     <string name="button_settings">Settings</string>
