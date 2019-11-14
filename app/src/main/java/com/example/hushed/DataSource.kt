@@ -1,5 +1,7 @@
 package com.example.hushed
 
+import java.util.UUID
+
 import android.util.Log
 import android.content.SharedPreferences
 
@@ -78,12 +80,15 @@ class DataSource {
             return conversationList
         }
 
-        fun getDeviceID(): String {
-            return deviceID
+        fun getDeviceID(prefFile: SharedPreferences): String {
+            return prefFile.getString("UUID", "NO_ID").toString()
         }
 
-        fun setDeviceID(myID: String) {
-            deviceID = myID
+        fun setDeviceID(prefFile: SharedPreferences) {
+            if (prefFile.getString("UUID", null) == null) {
+                val myID = UUID.randomUUID().toString()
+                prefFile.edit().putString("UUID", myID).apply()
+            }
         }
 
         const val NO_ID = "[NO_ID]"

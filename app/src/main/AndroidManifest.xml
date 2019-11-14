@@ -14,34 +14,31 @@
         <activity
             android:name=".SelectedConversationActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".MessageActivity"
+            android:parentActivityName=".ConversationsActivity"
             android:windowSoftInputMode="adjustResize">
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MessageActivity" />
+                android:value=".ConversationsActivity" />
         </activity>
         <activity
-            android:name=".MessageActivity"
+            android:name=".ConversationsActivity"
             android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".NicknameActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".ConversationsActivity" />
         </activity>
 
         <activity android:name=".ContactsActivity"
-            android:parentActivityName=".MessageActivity"
+            android:parentActivityName=".ConversationsActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MessageActivity"/>
+                android:value=".ConversationsActivity"/>
         </activity>
 
         <activity
@@ -52,14 +49,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".MainActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
     </application>

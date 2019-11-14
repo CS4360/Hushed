@@ -1,11 +1,14 @@
 package com.example.hushed
 
-import android.content.Intent
-import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+
 import kotlinx.android.synthetic.main.activity_contacts.*
+
+import android.util.Log
+import android.os.Bundle
+import android.widget.Toast
+import android.content.Intent
+
 
 class ContactsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,10 +1,10 @@
 package com.example.hushed;
 
+import android.os.Bundle;
+import android.util.Log;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,7 +26,7 @@ public class HushedApplication
     @Override public void onActivityPaused(@NonNull Activity activity) { }
     @Override public void onActivityStopped(@NonNull Activity activity) {
         Log.i("Test", "Activity " + activity.getClass() + " Stopped.");
-        if (activity instanceof MainActivity) {
+        if (activity instanceof ConversationsActivity) {
             DataSource.Companion.saveTo(getSharedPreferences("DataSource", Context.MODE_PRIVATE));
         }
     }

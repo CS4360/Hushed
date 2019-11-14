@@ -1,16 +1,16 @@
 package com.example.hushed;
 
-import android.content.Intent;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Button;
+import android.content.Intent;
+import android.widget.TextView;
+import android.content.Context;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.content.SharedPreferences;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -70,10 +70,10 @@ public class NicknameActivity extends AppCompatActivity {
     }
 
     private void onNicknamesLoaded(DocumentSnapshot doc) {
-        String requestedName = nickname.getText().toString();
-        String id = DataSource.Companion.getDeviceID();
-
         SharedPreferences prefFile = getSharedPreferences("SplashActivityPrefsFile", 0);
+        String requestedName = nickname.getText().toString();
+        String id = DataSource.Companion.getDeviceID(prefFile);
+
         String publicKey = DataSource.Companion.getPublicKey(getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE));
 
         nicknames.whereEqualTo("id", id)
@@ -136,7 +136,7 @@ public class NicknameActivity extends AppCompatActivity {
             public void run() {
                 try {
                     Log.i("Activity","Entering Conversations Activity");
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), ConversationsActivity.class);
                     startActivity(intent);
                     finish();
                 }
