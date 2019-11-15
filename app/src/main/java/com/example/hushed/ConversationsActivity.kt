@@ -19,14 +19,11 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 
-import java.util.Timer
-
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 
 import kotlin.collections.HashMap
 import kotlin.collections.ArrayList
-import kotlin.concurrent.scheduleAtFixedRate
 
 
 const val ID = "com.example.hushed.ID"
@@ -38,7 +35,6 @@ class ConversationsActivity : AppCompatActivity() {
         .collection("db")
     private val nicknames = FirebaseFirestore.getInstance()
         .collection("nicknames")
-    private var timer: Timer = Timer()
 
     private lateinit var messageAdapter: ConversationsRecyclerAdapter
 
@@ -48,17 +44,41 @@ class ConversationsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home_messages)
 
+
         db.document(DataSource.getDeviceID(prefFile)).get()
             .addOnSuccessListener { doc ->
                 onLoadedDocument(doc)
 
-                refreshConversations()
             }
             .addOnFailureListener { e ->
                 Log.w(
                     "Firebase",
                     "Error retrieving document from database", e
                 )
+            }
+
+        db.document(DataSource.getDeviceID(prefFile))
+            .addSnapshotListener { doc, e ->
+                if (e != null) {
+                    Log.w("Firebase", "Error listening to document", e)
+                    return@addSnapshotListener
+                }
+
+                if (doc == null) {
+                    Log.w("Firebase", "Snapshot missing")
+                    return@addSnapshotListener
+                }
+
+                val source = if (doc.metadata.hasPendingWrites()) "Local" else "Server"
+
+                if (source == "Server") {
+                    onLoadedDocument(doc)
+                } else {
+                    DataSource.saveTo(getSharedPreferences("DataSource", Context.MODE_PRIVATE))
+                    messageAdapter.notifyDataSetChanged()
+                }
+
+
             }
 
         initRecyclerView()
@@ -86,7 +106,8 @@ class ConversationsActivity : AppCompatActivity() {
     private fun initRecyclerView() {
         recyclerViewHome.apply {
             layoutManager = LinearLayoutManager(this@ConversationsActivity)
-            messageAdapter = ConversationsRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
+            messageAdapter =
+                ConversationsRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
             adapter = messageAdapter
         }
     }
@@ -102,19 +123,6 @@ class ConversationsActivity : AppCompatActivity() {
         }
     }
 
-    private fun refreshConversations() {
-        val prefFile = getSharedPreferences("SplashActivityPrefsFile", 0)
-        // Refreshes conversations every 10 seconds with data from the database
-        // We can decrease the interval to see faster responses.
-        // Ex. var task = timer.scheduleAtFixedRate(1*1000L, 1 * 1000L)
-        timer.scheduleAtFixedRate(10 * 1000L, 10 * 1000L) {
-
-
-            Log.i("Conversations", "Refreshing conversations")
-            db.document(DataSource.getDeviceID(prefFile)).get()
-                .addOnSuccessListener(::onLoadedDocument)
-        }
-    }
 
     private fun onLoadedDocument(doc: DocumentSnapshot) {
         val prefFile = getSharedPreferences("SplashActivityPrefsFile", 0)
@@ -155,7 +163,8 @@ class ConversationsActivity : AppCompatActivity() {
                             val encryptedMessageBytes = Keygen.stringToBytes(message as String)
                             val iv = IvParameterSpec(encryptedMessageBytes, 0, dec.getBlockSize())
 
-                            val partnerPublicKey = Keygen.stringToBytes(doc.get("publicKey") as String)
+                            val partnerPublicKey =
+                                Keygen.stringToBytes(doc.get("publicKey") as String)
                             val sharedKey = Keygen.generateSharedKey(privateKey, partnerPublicKey)
                             val aesSharedKey = EncDec.deriveCipherKey(sharedKey)
                             dec.init(Cipher.DECRYPT_MODE, aesSharedKey, iv)
@@ -181,7 +190,8 @@ class ConversationsActivity : AppCompatActivity() {
                             timestamp = lastMsg.timestamp
                         )
 
-                        var i = conversationList.indexOfFirst { message -> message.sender == partnerId }
+                        var i =
+                            conversationList.indexOfFirst { message -> message.sender == partnerId }
                         if (i >= 0) {
                             conversationList.removeAt(i)
                         }

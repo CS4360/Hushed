@@ -81,6 +81,10 @@ class ConversationsRecyclerAdapter(val context: Context, val clickListener: (Mes
                     itemView.message_sender.text = name
                 }
             }
+
+            if (DataSource.idToNicknameCache.containsKey(msg.sender)) {
+                itemView.message_sender.text = DataSource.idToNicknameCache[msg.sender]
+            }
         }
     }
 

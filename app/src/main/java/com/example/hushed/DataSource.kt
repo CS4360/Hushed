@@ -21,7 +21,7 @@ class DataSource {
     companion object {
         private val nicknames = FirebaseFirestore.getInstance()
             .collection("nicknames")
-        
+
         // to hold the last message of various users, displayed when selecting a conversation.
         private var conversationList = ArrayList<Messages>()
 
@@ -29,6 +29,9 @@ class DataSource {
         // keys are UserIDs of the partner user that a conversation is held with
         // values are the last message received by or sent to that partner user
         private var conversations = HashMap<String, ArrayList<Messages>>()
+
+        val nicknameToIdCache = HashMap<String, String>()
+        val idToNicknameCache = HashMap<String, String>()
 
         //  This holds this user's UUID
         private var deviceID = ""
@@ -100,6 +103,9 @@ class DataSource {
                     if (doc.data.orEmpty().isNotEmpty()) {
                         val id = doc.data!!["id"]
                         if (id is String) {
+                            nicknameToIdCache[name] = id;
+                            idToNicknameCache[id] = name
+
                             callback(id)
                         } else {
                             callback(NO_ID)
@@ -116,8 +122,11 @@ class DataSource {
                 .get()
                 .addOnSuccessListener { query ->
                     if (!query.isEmpty) {
+                        val name = query.documents[0].id
+                        idToNicknameCache[id] = name
+                        nicknameToIdCache[name] = id
                         // id of document is nickname of user
-                        callback(query.documents[0].id)
+                        callback(name)
                     } else {
                         callback(NO_NAME)
                     }
@@ -126,7 +135,7 @@ class DataSource {
 
 
         fun saveTo(prefs: SharedPreferences) {
-            val map = JsonObject()
+            val convoMap = JsonObject()
 
             Log.i("Test", "Saving " + conversations.size + " Conversations")
             for ((key, value) in conversations) {
@@ -142,23 +151,37 @@ class DataSource {
 
                     convo.add(msg)
                 }
-                map.add(key, convo)
+                convoMap.add(key, convo)
             }
 
-            prefs.edit()?.putString("conversations", map.toString())?.apply()
+            val nicknameMap = JsonObject()
+            Log.i("Test", "Saving " + idToNicknameCache.size + " Nicknames")
+            for ((id, name) in idToNicknameCache) {
+                nicknameMap.addProperty(id, name)
+            }
+
+
+            prefs.edit()?.putString("conversations", convoMap.toString())
+                ?.putString("nicknames", nicknameMap.toString())
+                ?.apply()
+
+
             Log.i("Test", "Saved")
         }
 
         fun loadFrom(prefs: SharedPreferences) {
-            var json = prefs.getString("conversations", "{}")
-            var map = JsonParser().parse(json) as JsonObject
+            var nicknameJson = prefs.getString("nicknames", "{}")
+            var convoJson = prefs.getString("conversations", "{}")
+            var nicknameMap = JsonParser().parse(nicknameJson) as JsonObject
+            var convoMap = JsonParser().parse(convoJson) as JsonObject
 
-            Log.i("Test", "Loaded " + map.size() + " Conversations")
+            Log.i("Test", "Loaded " + convoMap.size() + " Conversations")
+            Log.i("Test", "Loaded " + nicknameMap.size() + " Nicknames")
 
             conversations.clear()
             conversationList.clear()
 
-            for ((key, value) in map.entrySet()) {
+            for ((key, value) in convoMap.entrySet()) {
                 val convo = ArrayList<Messages>()
                 conversations[key] = convo
 
@@ -192,6 +215,16 @@ class DataSource {
                 }
                 conversationList.sortWith(Messages.comparator)
             }
+
+            nicknameToIdCache.clear()
+            idToNicknameCache.clear()
+            for ((key, value) in nicknameMap.entrySet()) {
+                val id = key;
+                val name = value.asString
+
+                nicknameToIdCache[name] = id
+                idToNicknameCache[id] = name
+            }
         }
 
 
@@ -205,7 +238,12 @@ class DataSource {
             conversations.remove(id)
         }
 
-        fun deleteMessageFrom(prefs: SharedPreferences, id: String, message: String, timestamp: String) {
+        fun deleteMessageFrom(
+            prefs: SharedPreferences,
+            id: String,
+            message: String,
+            timestamp: String
+        ) {
             val json = prefs.getString("conversations", "{}")
             var map = JsonParser().parse(json) as JsonObject
 
@@ -213,12 +251,15 @@ class DataSource {
                 if (value is JsonArray) {
                     val stringifiedJSON = value.toString()
 
-                    if(stringifiedJSON.contains(id) && stringifiedJSON.contains(message) && stringifiedJSON.contains(timestamp)){
+                    if (stringifiedJSON.contains(id) && stringifiedJSON.contains(message) && stringifiedJSON.contains(
+                            timestamp
+                        )
+                    ) {
 
                         for (i in 0 until value.size()) {
                             val msg = value.get(i).toString()
 
-                            if(msg.contains(id) && msg.contains(message) && msg.contains(timestamp)) {
+                            if (msg.contains(id) && msg.contains(message) && msg.contains(timestamp)) {
                                 value.remove(i)
                                 break
                             }
