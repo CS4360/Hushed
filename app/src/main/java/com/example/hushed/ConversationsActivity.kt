@@ -69,8 +69,15 @@ class ConversationsActivity : AppCompatActivity() {
                     return@addSnapshotListener
                 }
 
-                onLoadedDocument(doc)
-                messageAdapter.notifyDataSetChanged()
+                val source = if (doc.metadata.hasPendingWrites()) "Local" else "Server"
+
+                if (source == "Server") {
+                    onLoadedDocument(doc)
+                } else {
+                    DataSource.saveTo(getSharedPreferences("DataSource", Context.MODE_PRIVATE))
+                    messageAdapter.notifyDataSetChanged()
+                }
+
 
             }
 
