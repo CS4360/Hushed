@@ -1,5 +1,7 @@
 package com.example.hushed.crypto;
 
+import android.util.Base64;
+
 import java.security.SecureRandom;
 
 import org.whispersystems.curve25519.java.curve_sigs;
@@ -32,25 +34,10 @@ public class Keygen {
     }
 
     public static String byteToString(byte[] key) {
-        String keyString = "";
-
-        for(byte element: key) {
-            keyString += element + ",";
-        }
-
-        return keyString;
+        return Base64.encodeToString(key, Base64.DEFAULT);
     }
 
     public static byte[] stringToBytes(String key) {
-        String[] keyString = key.split(",");
-        byte[] keyByte = new byte[keyString.length];
-        int working;
-
-        for(int i = 0; i < keyString.length; i++) {
-            working = Integer.parseInt(keyString[i]);
-            keyByte[i] = (byte) working;
-        }
-
-        return keyByte;
+        return  Base64.decode(key, Base64.DEFAULT);
     }
 }
