@@ -93,9 +93,14 @@ class ConversationsActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        Log.i("stop!", "on stop called!")
+//    override fun onStop() {
+//        super.onStop()
+//        Log.i("stop!", "on stop called!")
+//        listener.remove()
+//    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         listener.remove()
     }
 
