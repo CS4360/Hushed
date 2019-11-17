@@ -118,7 +118,10 @@ class ConversationsActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
         recyclerViewHome.apply {
-            layoutManager = LinearLayoutManager(this@ConversationsActivity)
+            layoutManager = LinearLayoutManager(this@ConversationsActivity).apply {
+                reverseLayout = true
+                stackFromEnd = true
+            }
             messageAdapter =
                 ConversationsRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
             adapter = messageAdapter
