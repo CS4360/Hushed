@@ -18,6 +18,7 @@ import com.example.hushed.models.Messages
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -37,6 +38,8 @@ class ConversationsActivity : AppCompatActivity() {
         .collection("nicknames")
 
     private lateinit var messageAdapter: ConversationsRecyclerAdapter
+    private lateinit var listener: ListenerRegistration
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val prefFile = getSharedPreferences("SplashActivityPrefsFile", 0)
@@ -45,20 +48,20 @@ class ConversationsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home_messages)
 
 
-        db.document(DataSource.getDeviceID(prefFile)).get()
-            .addOnSuccessListener { doc ->
-                onLoadedDocument(doc)
+//        db.document(DataSource.getDeviceID(prefFile)).get()
+//            .addOnSuccessListener { doc ->
+//                onLoadedDocument(doc)
+//
+//            }
+//            .addOnFailureListener { e ->
+//                Log.w(
+//                    "Firebase",
+//                    "Error retrieving document from database", e
+//                )
+//            }
 
-            }
-            .addOnFailureListener { e ->
-                Log.w(
-                    "Firebase",
-                    "Error retrieving document from database", e
-                )
-            }
-
-        db.document(DataSource.getDeviceID(prefFile))
-            .addSnapshotListener { doc, e ->
+        listener = db.document(DataSource.getDeviceID(prefFile))
+            .addSnapshotListener {  doc, e ->
                 if (e != null) {
                     Log.w("Firebase", "Error listening to document", e)
                     return@addSnapshotListener
@@ -78,7 +81,6 @@ class ConversationsActivity : AppCompatActivity() {
                     messageAdapter.notifyDataSetChanged()
                 }
 
-
             }
 
         initRecyclerView()
@@ -89,6 +91,12 @@ class ConversationsActivity : AppCompatActivity() {
             val intent = Intent(this, ContactsActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.i("stop!", "on stop called!")
+        listener.remove()
     }
 
     override fun onBackPressed() {
