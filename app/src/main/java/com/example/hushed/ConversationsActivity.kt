@@ -18,6 +18,7 @@ import com.example.hushed.models.Messages
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -37,6 +38,8 @@ class ConversationsActivity : AppCompatActivity() {
         .collection("nicknames")
 
     private lateinit var messageAdapter: ConversationsRecyclerAdapter
+    private lateinit var listener: ListenerRegistration
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val prefFile = getSharedPreferences("SplashActivityPrefsFile", 0)
@@ -45,20 +48,8 @@ class ConversationsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home_messages)
 
 
-        db.document(DataSource.getDeviceID(prefFile)).get()
-            .addOnSuccessListener { doc ->
-                onLoadedDocument(doc)
-
-            }
-            .addOnFailureListener { e ->
-                Log.w(
-                    "Firebase",
-                    "Error retrieving document from database", e
-                )
-            }
-
-        db.document(DataSource.getDeviceID(prefFile))
-            .addSnapshotListener { doc, e ->
+        listener = db.document(DataSource.getDeviceID(prefFile))
+            .addSnapshotListener {  doc, e ->
                 if (e != null) {
                     Log.w("Firebase", "Error listening to document", e)
                     return@addSnapshotListener
@@ -78,7 +69,6 @@ class ConversationsActivity : AppCompatActivity() {
                     messageAdapter.notifyDataSetChanged()
                 }
 
-
             }
 
         initRecyclerView()
@@ -89,6 +79,11 @@ class ConversationsActivity : AppCompatActivity() {
             val intent = Intent(this, ContactsActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        listener.remove()
     }
 
     override fun onBackPressed() {
@@ -105,7 +100,10 @@ class ConversationsActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
         recyclerViewHome.apply {
-            layoutManager = LinearLayoutManager(this@ConversationsActivity)
+            layoutManager = LinearLayoutManager(this@ConversationsActivity).apply {
+                reverseLayout = true
+                stackFromEnd = true
+            }
             messageAdapter =
                 ConversationsRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
             adapter = messageAdapter
