@@ -48,18 +48,6 @@ class ConversationsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home_messages)
 
 
-//        db.document(DataSource.getDeviceID(prefFile)).get()
-//            .addOnSuccessListener { doc ->
-//                onLoadedDocument(doc)
-//
-//            }
-//            .addOnFailureListener { e ->
-//                Log.w(
-//                    "Firebase",
-//                    "Error retrieving document from database", e
-//                )
-//            }
-
         listener = db.document(DataSource.getDeviceID(prefFile))
             .addSnapshotListener {  doc, e ->
                 if (e != null) {
@@ -92,12 +80,6 @@ class ConversationsActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-
-//    override fun onStop() {
-//        super.onStop()
-//        Log.i("stop!", "on stop called!")
-//        listener.remove()
-//    }
 
     override fun onDestroy() {
         super.onDestroy()
