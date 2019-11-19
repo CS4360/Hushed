@@ -23,15 +23,17 @@ import android.content.Context
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+
 import com.example.hushed.R
 import com.example.hushed.database.DataSource
 
 
 class SelectedConversationActivity : AppCompatActivity() {
-    private lateinit var selectedConversationAdapter: SelectedConversationRecyclerAdapter
-
+    private var date = Date()
     private var partnerId: String = ""
     private var partnerName: String = ""
+    private val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS a")
+    private lateinit var selectedConversationRecyclerAdapter: SelectedConversationRecyclerAdapter
 
     private val db = FirebaseFirestore.getInstance()
         .collection("db")
@@ -39,63 +41,53 @@ class SelectedConversationActivity : AppCompatActivity() {
         .collection("nicknames")
 
     private var conversationUpdatedCallback = Runnable {
-        selectedConversationAdapter.notifyDataSetChanged()
-        // scroll adapter to bottom
-        messageList.scrollToPosition(selectedConversationAdapter.itemCount - 1)
+        selectedConversationRecyclerAdapter.notifyDataSetChanged()
+        messageList.scrollToPosition(selectedConversationRecyclerAdapter.itemCount - 1)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val actionBar = supportActionBar
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message_chat)
         initRecyclerView()
 
-        // note from jon:
-        // Get NAME extra, describing id of who the conversation is with
         partnerId = intent.getStringExtra(ID) ?: ""
         partnerName = intent.getStringExtra(NAME) ?: ""
-        // Set the currently viewed conversation in the shared DataSource
+
         DataSource.setViewingConversation(partnerId)
 
-        // note from jon:
-        // Set the name of the partner into the title bar
-        // todo: map the id of the partner to their actual name
-        val actionBar = supportActionBar
         actionBar!!.title = if (partnerName.isBlank()) "[NO PARTNER]" else partnerName
         initDataSet()
 
         btnSend.setOnClickListener {
-
-            var date = Date()
-            val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS a")
             val timestamp: String = formatter.format(date)
 
-            Log.i("tag", "Click: send_button Button")
-            if (txtMessage.text.isNullOrBlank()) {
-                Toast.makeText(
-                    this@SelectedConversationActivity,
-                    "Message cannot be blank",
-                    Toast.LENGTH_LONG
-                ).show()
-                Log.i("tag", "Blank message entered")
-            } else if (partnerId.isNullOrBlank()) {
-                Toast.makeText(this, "Sender cannot be blank", Toast.LENGTH_LONG).show()
-                Log.i("tag", "Blank Sender")
-            } else {
-                // Put all logic for both updating local data and database into one method
-                sendMessage(txtMessage.text.toString(), timestamp)
+            when {
+                txtMessage.text.isNullOrBlank() -> {
+                    Toast.makeText(
+                        this@SelectedConversationActivity,
+                        "Message cannot be blank",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    Log.i("Message", "Blank message entered!")
+                }
+                partnerId.isNullOrBlank() -> {
+                    Toast.makeText(this, "Sender cannot be blank", Toast.LENGTH_LONG).show()
+                    Log.i("Message", "Blank sender entered!")
+                }
+                else -> sendMessage(txtMessage.text.toString(), timestamp)
             }
 
             txtMessage.text.clear()
         }
     }
 
-    // note from jon: this lifecycle method gets called just before an activity begins running
     override fun onResume() {
         super.onResume()
         DataSource.addOnConversationUpdated(conversationUpdatedCallback)
     }
 
-    // note from jon: this lifecycle method gets called just after an activity begins running
     override fun onPause() {
         super.onPause()
         DataSource.removeOnConversationUpdated(conversationUpdatedCallback)
@@ -103,8 +95,8 @@ class SelectedConversationActivity : AppCompatActivity() {
 
     private fun sendMessage(msg: String, timestamp: String) {
         val prefFile = getSharedPreferences("SplashActivityPrefsFile", 0)
-
         val prefs = getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE)
+
         val privateKey = Keygen.stringToBytes(prefs.getString("privateKey", "NO_KEY"))
         val enc = Cipher.getInstance("AES/CBC/PKCS5Padding")
         val messageInBytes = txtMessage.text.toString().toByteArray()
@@ -113,28 +105,32 @@ class SelectedConversationActivity : AppCompatActivity() {
         var convoList = DataSource.getConversationList()
         var index = convoList.indexOfFirst { message -> message.sender == partnerId }
 
-        selectedConversationAdapter.appendMessage(msg, senderName, timestamp)
-
-        if (index >= 0) {
-            convoList.removeAt(index)
-        }
-        var msg = Messages(
+        var message = Messages(
             sender = partnerId,
             message = msg,
             timestamp = timestamp
         )
-        convoList.add(msg)
+
+        selectedConversationRecyclerAdapter.appendMessage(msg, senderName, timestamp)
+
+        if (index >= 0) {
+            convoList.removeAt(index)
+        }
+
+        convoList.add(message)
         convoList.sortWith(Messages.comparator)
 
         DataSource.saveTo(getSharedPreferences("DataSource", Context.MODE_PRIVATE))
-        messageList.scrollToPosition(selectedConversationAdapter.itemCount - 1)
+        messageList.scrollToPosition(selectedConversationRecyclerAdapter.itemCount - 1)
 
         nicknames.document(partnerName).get()
             .addOnSuccessListener { doc ->
                 val partnerPublicKey = Keygen.stringToBytes(doc.get("publicKey") as String)
                 val sharedKey = Keygen.generateSharedKey(privateKey, partnerPublicKey)
                 val aesSharedKey = EncDec.deriveCipherKey(sharedKey)
+
                 enc.init(Cipher.ENCRYPT_MODE, aesSharedKey)
+
                 val encryptedMessageBytes = EncDec.encrypt(enc, messageInBytes)
                 val stringifiedEncMessage = Keygen.byteToString(encryptedMessageBytes)
 
@@ -151,20 +147,16 @@ class SelectedConversationActivity : AppCompatActivity() {
             .addOnFailureListener {  }
     }
 
-    // note from jon: Added this method to initialize the data set in the recycler view
-    // We will grab the conversation that was set by
     private fun initDataSet() {
         var conversations = DataSource.getConversations()
         var convo = conversations[partnerId] ?: ArrayList()
+
         if (!conversations.containsKey(partnerId)) {
             conversations[partnerId] = convo
         }
-        Log.i("messages", "Conversation with " + partnerId + " has " + convo.size + " Mesasges.")
 
-        // send the list to the display adapter
-        selectedConversationAdapter.setMessages(convo)
-        // Scroll to bottom
-        messageList.scrollToPosition(selectedConversationAdapter.itemCount - 1)
+        selectedConversationRecyclerAdapter.setMessages(convo)
+        messageList.scrollToPosition(selectedConversationRecyclerAdapter.itemCount - 1)
     }
 
     private fun initRecyclerView() {
@@ -172,11 +164,9 @@ class SelectedConversationActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@SelectedConversationActivity).apply {
                 stackFromEnd = true
             }
-            // Set 'this' SelectedConversationActivity's selectedConversationAdapter
-            selectedConversationAdapter =
-                SelectedConversationRecyclerAdapter(context)
-            // Set the 'messageList''s adapter
-            adapter = selectedConversationAdapter
+
+            selectedConversationRecyclerAdapter = SelectedConversationRecyclerAdapter(context)
+            adapter = selectedConversationRecyclerAdapter
         }
     }
 }
