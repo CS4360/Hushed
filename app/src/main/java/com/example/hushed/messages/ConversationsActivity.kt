@@ -99,7 +99,7 @@ class ConversationsActivity : AppCompatActivity() {
 
     private fun addDataSet() {
         val data = DataSource.getConversationList()
-        messageAdapter.submitList(data)
+        messageAdapter.setMessageList(data)
     }
 
     private fun initRecyclerView() {
