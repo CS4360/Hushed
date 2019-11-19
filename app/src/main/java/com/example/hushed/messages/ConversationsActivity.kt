@@ -97,7 +97,7 @@ class ConversationsActivity : AppCompatActivity() {
 
     private fun setConversationList() {
         val conversation = DataSource.getConversationList()
-        messageAdapter.submitList(conversation)
+        messageAdapter.setMessageList(conversation)
     }
 
     private fun initRecyclerView() {

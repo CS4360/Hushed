@@ -6,16 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+
 import androidx.recyclerview.widget.RecyclerView
+
 import com.example.hushed.R
 import com.example.hushed.database.DataSource
 import com.example.hushed.models.Messages
+
 import kotlinx.android.synthetic.main.recycler_messages.view.*
 
-// Suggestion from jon: Rename this type "ConversationsRecyclerAdapter"
-// Naming things is hard, but that better describes what this adapter is for
-class ConversationsRecyclerAdapter(val context: Context, val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
+class ConversationsRecyclerAdapter(val context: Context, val clickListener: (Messages) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     private var messages: MutableList<Messages> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -27,7 +28,7 @@ class ConversationsRecyclerAdapter(val context: Context, val clickListener: (Mes
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(holder){
             is MessageViewHolder -> {
-                holder.bind(messages.get(position), clickListener)
+                holder.bind(messages[position], clickListener)
             }
         }
     }
@@ -40,31 +41,29 @@ class ConversationsRecyclerAdapter(val context: Context, val clickListener: (Mes
         return position
     }
 
-    fun removeItem(position: Int) {
+    fun removeMessge(position: Int) {
         messages.removeAt(position)
         notifyDataSetChanged()
     }
 
-    fun submitList(msg: MutableList<Messages>) {
-        messages = msg
+    fun setMessageList(submittedMessage: MutableList<Messages>) {
+        messages = submittedMessage
     }
 
     inner class MessageViewHolder (itemView: View): RecyclerView.ViewHolder(itemView) {
-
         fun bind(msg: Messages, clickListener: (Messages) -> Unit) {
             itemView.message_sender.text = msg.sender
             itemView.message_text.text = msg.message
             itemView.setOnClickListener{clickListener(msg)}
-            // just holding down on the message view
             itemView.setOnLongClickListener {
-
                 val preferences = context.getSharedPreferences("DataSource", Context.MODE_PRIVATE)
                 val builder = AlertDialog.Builder(context)
-
+                val dialog: AlertDialog
+                
                 builder.setTitle("Delete Conversation")
                 builder.setMessage("Are you sure you want to delete conversation?")
                 builder.setPositiveButton("YES") { _, _ ->
-                    removeItem(layoutPosition)
+                    removeMessge(layoutPosition)
                     DataSource.deleteConversationsFrom(preferences, msg.sender)
                     Toast.makeText(context, "Conversation deleted!",Toast.LENGTH_LONG).show()
                 }
@@ -73,7 +72,8 @@ class ConversationsRecyclerAdapter(val context: Context, val clickListener: (Mes
                     _, _ ->
                     Toast.makeText(context, "Conversation not deleted",Toast.LENGTH_LONG).show()
                 }
-                val dialog: AlertDialog = builder.create()
+
+                dialog = builder.create()
                 dialog.show()
                 true
             }
