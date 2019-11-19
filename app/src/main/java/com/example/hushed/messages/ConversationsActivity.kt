@@ -44,13 +44,11 @@ class ConversationsActivity : AppCompatActivity() {
     private lateinit var messageAdapter: ConversationsRecyclerAdapter
     private lateinit var listener: ListenerRegistration
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         val prefFile = getSharedPreferences("SplashActivityPrefsFile", 0)
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home_messages)
-
 
         listener = db.document(DataSource.getDeviceID(prefFile))
             .addSnapshotListener {  doc, e ->
@@ -68,7 +66,8 @@ class ConversationsActivity : AppCompatActivity() {
 
                 if (source == "Server") {
                     onLoadedDocument(doc)
-                } else {
+                }
+                else {
                     DataSource.saveTo(getSharedPreferences("DataSource", Context.MODE_PRIVATE))
                     messageAdapter.notifyDataSetChanged()
                 }
@@ -76,10 +75,9 @@ class ConversationsActivity : AppCompatActivity() {
             }
 
         initRecyclerView()
-        addDataSet()
+        setConversationList()
 
         new_message.setOnClickListener {
-            Log.i("tag", "Click: new_message Button")
             val intent = Intent(this, ContactsActivity::class.java)
             startActivity(intent)
         }
@@ -97,9 +95,9 @@ class ConversationsActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun addDataSet() {
-        val data = DataSource.getConversationList()
-        messageAdapter.submitList(data)
+    private fun setConversationList() {
+        val conversation = DataSource.getConversationList()
+        messageAdapter.submitList(conversation)
     }
 
     private fun initRecyclerView() {
@@ -121,7 +119,6 @@ class ConversationsActivity : AppCompatActivity() {
     private fun messageClicked(msg: Messages) {
         val intent = Intent(this, SelectedConversationActivity::class.java)
 
-
         DataSource.nameForId(msg.sender) { name ->
             intent.putExtra(NAME, name)
             intent.putExtra(ID, msg.sender)
@@ -129,22 +126,17 @@ class ConversationsActivity : AppCompatActivity() {
         }
     }
 
-
     private fun onLoadedDocument(doc: DocumentSnapshot) {
-        val prefFile = getSharedPreferences("SplashActivityPrefsFile", 0)
-
         var conversationChanged = false
         var conversationList = DataSource.getConversationList()
         var conversationMap = DataSource.getConversations()
 
+        val prefFile = getSharedPreferences("SplashActivityPrefsFile", 0)
         val prefs = getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE)
         val privateKey = Keygen.stringToBytes(prefs.getString("privateKey", "NO_KEY"))
         val dec = Cipher.getInstance("AES/CBC/PKCS5Padding")
 
-        Log.i("Database", "Got new data!")
-
         var id = DataSource.getDeviceID(prefFile)
-
         var updates = HashMap<String, Any>()
 
         for ((key, value) in doc.data.orEmpty()) {
@@ -159,21 +151,22 @@ class ConversationsActivity : AppCompatActivity() {
             var partnerId = key
             var conversation = conversationMap[key]!!
 
-            conversationChanged = key.equals(DataSource.getViewingConversation())
+            conversationChanged = key == DataSource.getViewingConversation()
 
             DataSource.nameForId(partnerId) { partnerNickname ->
                 nicknames.document(partnerNickname).get()
                     .addOnSuccessListener { doc ->
                         Log.i("Database", "New messages for ${partnerId}!")
+
                         for ((timestamp, message) in newMessages) {
                             val encryptedMessageBytes = Keygen.stringToBytes(message as String)
-                            val iv = IvParameterSpec(encryptedMessageBytes, 0, dec.getBlockSize())
+                            val ivParamSpec = IvParameterSpec(encryptedMessageBytes, 0, dec.blockSize)
 
-                            val partnerPublicKey =
-                                Keygen.stringToBytes(doc.get("publicKey") as String)
+                            val partnerPublicKey = Keygen.stringToBytes(doc.get("publicKey") as String)
                             val sharedKey = Keygen.generateSharedKey(privateKey, partnerPublicKey)
                             val aesSharedKey = EncDec.deriveCipherKey(sharedKey)
-                            dec.init(Cipher.DECRYPT_MODE, aesSharedKey, iv)
+
+                            dec.init(Cipher.DECRYPT_MODE, aesSharedKey, ivParamSpec)
 
                             val decryptedMessageBytes = EncDec.decrypt(dec, encryptedMessageBytes)
                             val decryptedMessage = String(decryptedMessageBytes)
@@ -196,11 +189,13 @@ class ConversationsActivity : AppCompatActivity() {
                             timestamp = lastMsg.timestamp
                         )
 
-                        var i =
+                        var index =
                             conversationList.indexOfFirst { message -> message.sender == partnerId }
-                        if (i >= 0) {
-                            conversationList.removeAt(i)
+
+                        if (index >= 0) {
+                            conversationList.removeAt(index)
                         }
+
                         conversationList.add(0, msg)
 
                         db.document(id).update(updates)
@@ -218,17 +213,14 @@ class ConversationsActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         val intent = Intent(applicationContext, NicknameActivity::class.java)
         startActivity(intent)
+
         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
