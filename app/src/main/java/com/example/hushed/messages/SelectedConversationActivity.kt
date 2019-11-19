@@ -113,7 +113,7 @@ class SelectedConversationActivity : AppCompatActivity() {
         var convoList = DataSource.getConversationList()
         var index = convoList.indexOfFirst { message -> message.sender == partnerId }
 
-        selectedConversationAdapter.addMessage(msg, senderName, timestamp)
+        selectedConversationAdapter.appendMessage(msg, senderName, timestamp)
 
         if (index >= 0) {
             convoList.removeAt(index)
@@ -162,7 +162,7 @@ class SelectedConversationActivity : AppCompatActivity() {
         Log.i("messages", "Conversation with " + partnerId + " has " + convo.size + " Mesasges.")
 
         // send the list to the display adapter
-        selectedConversationAdapter.submitList(convo)
+        selectedConversationAdapter.setMessages(convo)
         // Scroll to bottom
         messageList.scrollToPosition(selectedConversationAdapter.itemCount - 1)
     }
