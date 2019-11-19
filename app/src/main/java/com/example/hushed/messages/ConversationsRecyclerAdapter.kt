@@ -1,4 +1,4 @@
-package com.example.hushed
+package com.example.hushed.messages
 
 import android.app.AlertDialog
 import android.content.Context
@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.hushed.R
+import com.example.hushed.database.DataSource
 import com.example.hushed.models.Messages
 import kotlinx.android.synthetic.main.recycler_messages.view.*
 

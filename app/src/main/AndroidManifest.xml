@@ -12,37 +12,37 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".SelectedConversationActivity"
+            android:name=".messages.SelectedConversationActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".ConversationsActivity"
+            android:parentActivityName=".messages.ConversationsActivity"
             android:windowSoftInputMode="adjustResize">
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ConversationsActivity" />
+                android:value=".messages.ConversationsActivity" />
         </activity>
         <activity
-            android:name=".ConversationsActivity"
+            android:name=".messages.ConversationsActivity"
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".NicknameActivity"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ConversationsActivity" />
-        </activity>
-
-        <activity android:name=".ContactsActivity"
-            android:parentActivityName=".ConversationsActivity"
+            android:name=".contacts.NicknameActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ConversationsActivity"/>
+                android:value=".messages.ConversationsActivity" />
+        </activity>
+
+        <activity android:name=".contacts.ContactsActivity"
+            android:parentActivityName=".messages.ConversationsActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".messages.ConversationsActivity"/>
         </activity>
 
         <activity
-            android:name=".SplashActivity"
+            android:name=".welcome.SplashActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">

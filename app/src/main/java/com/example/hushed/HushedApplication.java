@@ -9,6 +9,9 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.hushed.database.DataSource;
+import com.example.hushed.messages.ConversationsActivity;
+
 public class HushedApplication
         extends Application
         implements Application.ActivityLifecycleCallbacks {

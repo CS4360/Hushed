@@ -1,4 +1,4 @@
-package com.example.hushed
+package com.example.hushed.database
 
 import java.util.UUID
 

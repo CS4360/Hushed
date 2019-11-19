@@ -1,4 +1,4 @@
-package com.example.hushed;
+package com.example.hushed.crypto;
 
 import java.util.Base64;
 

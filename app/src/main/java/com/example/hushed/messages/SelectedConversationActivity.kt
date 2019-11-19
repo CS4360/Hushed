@@ -1,4 +1,4 @@
-package com.example.hushed
+package com.example.hushed.messages
 
 import java.util.Date
 import java.text.SimpleDateFormat
@@ -23,6 +23,8 @@ import android.content.Context
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.hushed.R
+import com.example.hushed.database.DataSource
 
 
 class SelectedConversationActivity : AppCompatActivity() {
@@ -111,7 +113,7 @@ class SelectedConversationActivity : AppCompatActivity() {
         var convoList = DataSource.getConversationList()
         var index = convoList.indexOfFirst { message -> message.sender == partnerId }
 
-        selectedConversationAdapter.addMessage(msg, senderName, timestamp)
+        selectedConversationAdapter.appendMessage(msg, senderName, timestamp)
 
         if (index >= 0) {
             convoList.removeAt(index)
@@ -160,7 +162,7 @@ class SelectedConversationActivity : AppCompatActivity() {
         Log.i("messages", "Conversation with " + partnerId + " has " + convo.size + " Mesasges.")
 
         // send the list to the display adapter
-        selectedConversationAdapter.submitList(convo)
+        selectedConversationAdapter.setMessages(convo)
         // Scroll to bottom
         messageList.scrollToPosition(selectedConversationAdapter.itemCount - 1)
     }
@@ -171,7 +173,8 @@ class SelectedConversationActivity : AppCompatActivity() {
                 stackFromEnd = true
             }
             // Set 'this' SelectedConversationActivity's selectedConversationAdapter
-            selectedConversationAdapter = SelectedConversationRecyclerAdapter(context)
+            selectedConversationAdapter =
+                SelectedConversationRecyclerAdapter(context)
             // Set the 'messageList''s adapter
             adapter = selectedConversationAdapter
         }

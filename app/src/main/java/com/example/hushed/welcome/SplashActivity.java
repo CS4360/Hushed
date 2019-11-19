@@ -1,4 +1,4 @@
-package com.example.hushed;
+package com.example.hushed.welcome;
 
 import android.util.Log;
 import android.os.Bundle;
@@ -8,7 +8,11 @@ import android.content.Intent;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.hushed.R;
+import com.example.hushed.contacts.NicknameActivity;
 import com.example.hushed.crypto.Keygen;
+import com.example.hushed.database.DataSource;
+import com.example.hushed.messages.ConversationsActivity;
 
 
 public class SplashActivity extends Activity {
