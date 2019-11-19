@@ -1,4 +1,4 @@
-package com.example.hushed
+package com.example.hushed.messages
 
 import android.util.Log
 import android.os.Bundle
@@ -9,10 +9,14 @@ import android.content.Context
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.hushed.R
+import com.example.hushed.contacts.ContactsActivity
+import com.example.hushed.contacts.NicknameActivity
 import kotlinx.android.synthetic.main.activity_home_messages.*
 
 import com.example.hushed.crypto.EncDec
 import com.example.hushed.crypto.Keygen
+import com.example.hushed.database.DataSource
 import com.example.hushed.models.Messages
 
 import com.google.firebase.firestore.FieldValue
@@ -27,8 +31,8 @@ import kotlin.collections.HashMap
 import kotlin.collections.ArrayList
 
 
-const val ID = "com.example.hushed.ID"
-const val NAME = "com.example.hushed.NAME"
+const val ID = "com.example.hushed.messages.ID"
+const val NAME = "com.example.hushed.messages.NAME"
 
 
 class ConversationsActivity : AppCompatActivity() {
@@ -105,7 +109,11 @@ class ConversationsActivity : AppCompatActivity() {
                 stackFromEnd = true
             }
             messageAdapter =
-                ConversationsRecyclerAdapter(context) { message: Messages -> messageClicked(message) }
+                ConversationsRecyclerAdapter(context) { message: Messages ->
+                    messageClicked(
+                        message
+                    )
+                }
             adapter = messageAdapter
         }
     }

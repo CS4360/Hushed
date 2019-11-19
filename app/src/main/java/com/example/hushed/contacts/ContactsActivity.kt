@@ -1,4 +1,4 @@
-package com.example.hushed
+package com.example.hushed.contacts
 
 import androidx.appcompat.app.AppCompatActivity
 
@@ -8,6 +8,11 @@ import android.util.Log
 import android.os.Bundle
 import android.widget.Toast
 import android.content.Intent
+import com.example.hushed.*
+import com.example.hushed.database.DataSource
+import com.example.hushed.messages.ID
+import com.example.hushed.messages.NAME
+import com.example.hushed.messages.SelectedConversationActivity
 
 
 class ContactsActivity : AppCompatActivity() {
@@ -30,7 +35,7 @@ class ContactsActivity : AppCompatActivity() {
     }
 
     private fun checkForContact(contact: String) {
-        DataSource.idForName(contact) {id ->
+        DataSource.idForName(contact) { id ->
             if (id != DataSource.NO_ID) {
                 setContact(id, contact)
             } else {

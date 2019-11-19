@@ -1,4 +1,4 @@
-package com.example.hushed;
+package com.example.hushed.contacts;
 
 import android.util.Log;
 import android.view.View;
@@ -14,6 +14,9 @@ import android.content.SharedPreferences;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.hushed.messages.ConversationsActivity;
+import com.example.hushed.database.DataSource;
+import com.example.hushed.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;

@@ -1,4 +1,4 @@
-package com.example.hushed
+package com.example.hushed.messages
 
 import androidx.recyclerview.widget.RecyclerView
 
@@ -17,6 +17,8 @@ import android.widget.TextView
 import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
+import com.example.hushed.R
+import com.example.hushed.database.DataSource
 
 
 class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
