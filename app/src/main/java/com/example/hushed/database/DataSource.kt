@@ -93,6 +93,10 @@ class DataSource {
                 prefFile.edit().putString("UUID", myID).apply()
             }
         }
+        
+        fun getDeviceNickName(prefFile: SharedPreferences): String {
+            return prefFile.getString("myNickName", "NO_NICKNAME").toString()
+        }
 
         const val NO_ID = "[NO_ID]"
         fun idForName(name: String, callback: (String) -> Unit) {
