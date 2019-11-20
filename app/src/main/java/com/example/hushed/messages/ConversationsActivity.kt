@@ -17,7 +17,6 @@ import kotlinx.android.synthetic.main.activity_home_messages.*
 import com.example.hushed.crypto.EncDec
 import com.example.hushed.crypto.Keygen
 import com.example.hushed.database.DataSource
-import com.example.hushed.models.Messages
 
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.DocumentSnapshot

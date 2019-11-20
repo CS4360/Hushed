@@ -7,25 +7,25 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 public class EncDec {
-
-
     public static byte[] encrypt(Cipher cipher, byte[] data) {
         try {
             byte[] encrypted = cipher.doFinal(data);
-            byte[] iv = cipher.getIV();
+            byte[] ivParamSpec = cipher.getIV();
 
-            byte[] ivAndBody = new byte[iv.length + encrypted.length];
-            System.arraycopy(iv, 0, ivAndBody, 0, iv.length);
-            System.arraycopy(encrypted, 0, ivAndBody, iv.length, encrypted.length);
+            byte[] ivAndBody = new byte[ivParamSpec.length + encrypted.length];
+            System.arraycopy(ivParamSpec, 0, ivAndBody, 0, ivParamSpec.length);
+            System.arraycopy(encrypted, 0, ivAndBody, ivParamSpec.length, encrypted.length);
 
             return ivAndBody;
-        } catch (Exception e) { throw new RuntimeException(e); }
+        }
+        catch (Exception e) { throw new RuntimeException(e); }
     }
 
     public static byte[] decrypt(Cipher cipher, byte[] encrypted) {
         try {
             return cipher.doFinal(encrypted, cipher.getBlockSize(), encrypted.length - cipher.getBlockSize());
-        } catch (Exception e) { throw new RuntimeException(e); }
+        }
+        catch (Exception e) { throw new RuntimeException(e); }
     }
 
     public static SecretKeySpec deriveMacKey(byte[] secretBytes) {
@@ -51,7 +51,8 @@ public class EncDec {
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(secretBytes, "HmacSHA256"));
             return mac.doFinal(intToByteArray(iteration));
-        } catch (NoSuchAlgorithmException | java.security.InvalidKeyException e) {
+        }
+        catch (NoSuchAlgorithmException | java.security.InvalidKeyException e) {
             throw new AssertionError(e);
         }
     }

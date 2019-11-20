@@ -8,10 +8,11 @@ import android.util.Log
 import android.os.Bundle
 import android.widget.Toast
 import android.content.Intent
+
 import com.example.hushed.*
-import com.example.hushed.database.DataSource
 import com.example.hushed.messages.ID
 import com.example.hushed.messages.NAME
+import com.example.hushed.database.DataSource
 import com.example.hushed.messages.SelectedConversationActivity
 
 
@@ -24,11 +25,11 @@ class ContactsActivity : AppCompatActivity() {
         actionBar!!.title = "Send To"
 
         enter_button.setOnClickListener {
-            Log.i("tag", "Click: enter_button Button")
             if (enter_contact.text.isNullOrBlank()) {
                 Toast.makeText(this, "Contact cannot be blank", Toast.LENGTH_LONG).show()
-                Log.i("tag", "Blank message entered")
-            } else {
+                Log.i("Message", "Blank message entered")
+            }
+            else {
                 checkForContact(enter_contact.text.toString())
             }
         }
@@ -38,7 +39,8 @@ class ContactsActivity : AppCompatActivity() {
         DataSource.idForName(contact) { id ->
             if (id != DataSource.NO_ID) {
                 setContact(id, contact)
-            } else {
+            }
+            else {
                 Toast.makeText(this, "User does not exist", Toast.LENGTH_LONG).show()
 
             }
