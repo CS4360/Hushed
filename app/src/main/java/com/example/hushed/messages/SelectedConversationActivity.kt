@@ -7,7 +7,6 @@ import javax.crypto.Cipher
 
 import com.example.hushed.crypto.EncDec
 import com.example.hushed.crypto.Keygen
-import com.example.hushed.models.Messages
 
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.FirebaseFirestore

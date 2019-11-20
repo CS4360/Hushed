@@ -25,8 +25,6 @@ public class SplashActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         if (prefFile.getBoolean("First_Time", true)) {
-            Log.i("Activity","Entering Splash Activity");
-
             DataSource.Companion.setDeviceID(prefFile);
             setContentView(R.layout.activity_splash);
 
@@ -42,7 +40,6 @@ public class SplashActivity extends Activity {
 
                         DataSource.Companion.saveKeys(getSharedPreferences("DeviceKeys", Context.MODE_PRIVATE), privKey, pubKey);
 
-                        Log.i("Activity","Entering Nickname Activity");
                         Intent intent = new Intent(getApplicationContext(), NicknameActivity.class);
                         startActivity(intent);
                         finish();
@@ -54,7 +51,6 @@ public class SplashActivity extends Activity {
             }, 3000);
         }
         else {
-            Log.i("Activity","Entering Conversations Activity");
             Intent intent = new Intent(getApplicationContext(), ConversationsActivity.class);
             startActivity(intent);
         }

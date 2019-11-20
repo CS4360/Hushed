@@ -8,7 +8,6 @@ import org.whispersystems.curve25519.java.curve_sigs;
 import org.whispersystems.curve25519.java.scalarmult;
 
 public class Keygen {
-
     private static SecureRandom random = new SecureRandom();
 
     public static byte[] generatePublicKey(byte[] privateKey) {

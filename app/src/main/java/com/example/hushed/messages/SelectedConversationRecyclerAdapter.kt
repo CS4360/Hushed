@@ -2,8 +2,6 @@ package com.example.hushed.messages
 
 import androidx.recyclerview.widget.RecyclerView
 
-import com.example.hushed.models.Messages
-
 import java.util.Date
 import java.text.SimpleDateFormat
 
@@ -52,11 +50,13 @@ class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.A
     }
 
     fun appendMessage(msg: String, sender: String, time: String) {
-        messages.add(Messages(
-            sender = sender,
-            message = msg,
-            timestamp = time
-        ))
+        messages.add(
+            Messages(
+                sender = sender,
+                message = msg,
+                timestamp = time
+            )
+        )
 
         notifyDataSetChanged()
     }

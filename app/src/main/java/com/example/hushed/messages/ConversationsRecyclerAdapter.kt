@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.example.hushed.R
 import com.example.hushed.database.DataSource
-import com.example.hushed.models.Messages
 
 import kotlinx.android.synthetic.main.recycler_messages.view.*
 
