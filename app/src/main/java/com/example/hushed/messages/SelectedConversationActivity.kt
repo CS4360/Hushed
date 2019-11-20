@@ -47,7 +47,7 @@ class SelectedConversationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val actionBar = supportActionBar
-
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message_chat)
         initRecyclerView()
