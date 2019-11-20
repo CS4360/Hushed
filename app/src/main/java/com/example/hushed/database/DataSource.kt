@@ -5,7 +5,7 @@ import java.util.UUID
 import android.util.Log
 import android.content.SharedPreferences
 
-import com.example.hushed.models.Messages
+import com.example.hushed.messages.Messages
 
 import com.google.firebase.firestore.FirebaseFirestore
 
