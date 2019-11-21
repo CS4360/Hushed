@@ -14,4 +14,7 @@
     <string name="prompt_enterContact">Enter Contact</string>
     <string name="prompt_enterMesssage">Enter Message</string>
     <string name="prompt_enterNickname">Enter Nickname</string>
+    <string name="display_myOwnNickname">My Nickname</string>
+    <string name="display_nickname_message">Your Nickname is: %s</string>
+    <string name="display_default_nickname">Your Nickname will display here</string>
 </resources>

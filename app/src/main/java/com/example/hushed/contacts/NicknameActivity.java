@@ -32,6 +32,7 @@ public class NicknameActivity extends AppCompatActivity {
             .collection("nicknames");
 
     private TextView nicknameMessage;
+    private TextView nicknameDisplay;
     private Button nicknameButton;
     private ProgressBar nicknameProgress;
     private EditText nickname;
@@ -42,10 +43,25 @@ public class NicknameActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_nickname);
 
+        SharedPreferences nickNameFile = getSharedPreferences("NickNamePrefFile", 0);
+
         nicknameButton = findViewById(R.id.nicknameButton);
         nicknameMessage = findViewById(R.id.nicknameMessage);
         nicknameProgress = findViewById(R.id.nicknameProgress);
+        nicknameDisplay = findViewById(R.id.myOwnNickName);
         nickname = findViewById(R.id.nickname);
+
+        String myNickname = DataSource.Companion.getDeviceNickName(nickNameFile);
+
+        if(!myNickname.equals("NO_NICKNAME")) {
+//            nicknameDisplay.setText("Your Nickname is: " + myNickname);
+            String display = getString(R.string.display_nickname_message, myNickname);
+            nicknameDisplay.setText(display);
+        }
+        else {
+            String display = getString(R.string.display_default_nickname);
+            nicknameDisplay.setText(display);
+        }
 
         nicknameButton.setOnClickListener(this::onNicknameButtonClicked);
     }
@@ -65,7 +81,7 @@ public class NicknameActivity extends AppCompatActivity {
             nicknames.document(requestedNickname)
                     .get()
                     .addOnSuccessListener((doc) -> {
-                        onNicknamesLoaded(doc);
+                        onNicknamesLoaded(doc, requestedNickname);
                     })
                     .addOnFailureListener((err) -> {
                         Log.e("Test", "Failed to get " + requestedNickname + ": " + err);
@@ -73,8 +89,9 @@ public class NicknameActivity extends AppCompatActivity {
         }
     }
 
-    private void onNicknamesLoaded(DocumentSnapshot doc) {
+    private void onNicknamesLoaded(DocumentSnapshot doc, String requestedNickname) {
         SharedPreferences prefFile = getSharedPreferences("SplashActivityPrefsFile", 0);
+        SharedPreferences nickNameFile = getSharedPreferences("NickNamePrefFile", 0);
         String requestedName = nickname.getText().toString();
         String id = DataSource.Companion.getDeviceID(prefFile);
 
@@ -104,8 +121,13 @@ public class NicknameActivity extends AppCompatActivity {
                                     nickname.setEnabled(true);
                                     nicknameButton.setEnabled(true);
                                     nicknameMessage.setText("Congrats, you are now " + requestedName + "!");
-
+                                    nickNameFile.edit().putString("myNickName", requestedNickname).apply();
                                     prefFile.edit().putBoolean("First_Time", false).apply();
+
+                                    String myNickname = DataSource.Companion.getDeviceNickName(nickNameFile);
+                                    String display = getString(R.string.display_nickname_message, myNickname);
+                                    nicknameDisplay.setText(display);
+
                                     startConversationsActivity();
                                 })
                                 .addOnFailureListener((err) -> {
