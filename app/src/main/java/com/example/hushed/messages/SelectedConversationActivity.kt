@@ -31,7 +31,7 @@ class SelectedConversationActivity : AppCompatActivity() {
     private var partnerId: String = ""
     private var partnerName: String = ""
 
-    private val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss.SSS a")
+    private val formatter = SimpleDateFormat("MM/dd/yy h:mm:ss.SSS a")
     private lateinit var selectedConversationRecyclerAdapter: SelectedConversationRecyclerAdapter
 
     private val db = FirebaseFirestore.getInstance()
