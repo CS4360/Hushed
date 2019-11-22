@@ -28,10 +28,10 @@ import com.example.hushed.database.DataSource
 
 
 class SelectedConversationActivity : AppCompatActivity() {
-    private var date = Date()
     private var partnerId: String = ""
     private var partnerName: String = ""
-    private val formatter = SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS a")
+
+    private val formatter = SimpleDateFormat("MM/dd/yy h:mm:ss.SSS a")
     private lateinit var selectedConversationRecyclerAdapter: SelectedConversationRecyclerAdapter
 
     private val db = FirebaseFirestore.getInstance()
@@ -60,6 +60,7 @@ class SelectedConversationActivity : AppCompatActivity() {
         initDataSet()
 
         btnSend.setOnClickListener {
+            var date = Date()
             val timestamp: String = formatter.format(date)
 
             when {

@@ -2,9 +2,6 @@ package com.example.hushed.messages
 
 import androidx.recyclerview.widget.RecyclerView
 
-import java.util.Date
-import java.text.SimpleDateFormat
-
 import kotlin.collections.ArrayList
 
 import android.view.View
@@ -20,9 +17,7 @@ import com.example.hushed.database.DataSource
 
 
 class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private var date = Date()
     private var messages: MutableList<Messages> = ArrayList()
-    private val timeFormatter = SimpleDateFormat("MM/dd/yy HH:mm a")
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MessageViewHolder(
@@ -75,7 +70,16 @@ class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.A
         fun bind(msg: Messages) {
             val prefFile = context.getSharedPreferences("SplashActivityPrefsFile", 0)
             val preferences = context.getSharedPreferences("DataSource", Context.MODE_PRIVATE)
-            var ownId = DataSource.getDeviceID(prefFile)
+
+            val ownId = DataSource.getDeviceID(prefFile)
+
+            val parsedDate = msg.timestamp.split(":")
+            val date: String
+
+            when (msg.timestamp.contains("AM")) {
+                true -> date = parsedDate[0] + ":" + parsedDate[1] + " AM"
+                false -> date = parsedDate[0] + ":" + parsedDate[1] + " PM"
+            }
 
             itemView.setOnLongClickListener {
                 val builder = AlertDialog.Builder(context)
@@ -102,7 +106,7 @@ class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.A
             if (msg.sender == ownId) {
                 sentMessage.text = msg.message
                 sentMessage.visibility = View.VISIBLE
-                sentMessageTime.text = timeFormatter.format(date)
+                sentMessageTime.text = date
                 sentMessageTime.visibility = View.VISIBLE
 
                 receivedMessage.text = ""
@@ -114,7 +118,7 @@ class SelectedConversationRecyclerAdapter(val context: Context) : RecyclerView.A
             else {
                 receivedMessage.text = msg.message
                 receivedMessage.visibility = View.VISIBLE
-                receivedMessageTime.text = timeFormatter.format(date)
+                receivedMessageTime.text = date
                 receivedMessageTime.visibility = View.VISIBLE
 
                 sentMessage.text = ""
