@@ -8,6 +8,7 @@ import android.util.Log
 import android.os.Bundle
 import android.widget.Toast
 import android.content.Intent
+import android.view.View
 
 import com.example.hushed.*
 import com.example.hushed.messages.ID
@@ -31,6 +32,8 @@ class ContactsActivity : AppCompatActivity() {
             }
             else {
                 checkForContact(enter_contact.text.toString())
+                contactProgress.setVisibility(View.VISIBLE)
+
             }
         }
     }

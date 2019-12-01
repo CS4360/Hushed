@@ -116,8 +116,8 @@ class ConversationsActivity : AppCompatActivity() {
     }
 
     private fun messageClicked(msg: Messages) {
-        val intent = Intent(this, SelectedConversationActivity::class.java)
 
+        val intent = Intent(this, SelectedConversationActivity::class.java)
         DataSource.nameForId(msg.sender) { name ->
             intent.putExtra(NAME, name)
             intent.putExtra(ID, msg.sender)
@@ -221,7 +221,7 @@ class ConversationsActivity : AppCompatActivity() {
         startActivity(intent)
 
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_nickname -> true
             else -> super.onOptionsItemSelected(item)
         }
     }
