@@ -32,8 +32,6 @@ class ContactsActivity : AppCompatActivity() {
             }
             else {
                 checkForContact(enter_contact.text.toString())
-                contactProgress.setVisibility(View.VISIBLE)
-
             }
         }
     }
