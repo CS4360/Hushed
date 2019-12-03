@@ -8,6 +8,7 @@ import android.util.Log
 import android.os.Bundle
 import android.widget.Toast
 import android.content.Intent
+import android.view.View
 
 import com.example.hushed.*
 import com.example.hushed.messages.ID
